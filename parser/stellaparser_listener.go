@@ -1,6 +1,7 @@
-// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
+// Code generated from StellaParser.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // StellaParser
+
 import "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 
 // StellaParserListener is a complete listener for a parse tree produced by StellaParser.
@@ -28,17 +29,23 @@ type StellaParserListener interface {
 	// EnterDeclFun is called when entering the DeclFun production.
 	EnterDeclFun(c *DeclFunContext)
 
+	// EnterDeclFunGeneric is called when entering the DeclFunGeneric production.
+	EnterDeclFunGeneric(c *DeclFunGenericContext)
+
 	// EnterDeclTypeAlias is called when entering the DeclTypeAlias production.
 	EnterDeclTypeAlias(c *DeclTypeAliasContext)
+
+	// EnterDeclExceptionType is called when entering the DeclExceptionType production.
+	EnterDeclExceptionType(c *DeclExceptionTypeContext)
+
+	// EnterDeclExceptionVariant is called when entering the DeclExceptionVariant production.
+	EnterDeclExceptionVariant(c *DeclExceptionVariantContext)
 
 	// EnterInlineAnnotation is called when entering the InlineAnnotation production.
 	EnterInlineAnnotation(c *InlineAnnotationContext)
 
 	// EnterParamDecl is called when entering the paramDecl production.
 	EnterParamDecl(c *ParamDeclContext)
-
-	// EnterIsEmpty is called when entering the IsEmpty production.
-	EnterIsEmpty(c *IsEmptyContext)
 
 	// EnterFold is called when entering the Fold production.
 	EnterFold(c *FoldContext)
@@ -49,23 +56,11 @@ type StellaParserListener interface {
 	// EnterIsZero is called when entering the IsZero production.
 	EnterIsZero(c *IsZeroContext)
 
-	// EnterLessThanOrEqual is called when entering the LessThanOrEqual production.
-	EnterLessThanOrEqual(c *LessThanOrEqualContext)
-
-	// EnterSucc is called when entering the Succ production.
-	EnterSucc(c *SuccContext)
-
 	// EnterVar is called when entering the Var production.
 	EnterVar(c *VarContext)
 
-	// EnterInl is called when entering the Inl production.
-	EnterInl(c *InlContext)
-
-	// EnterGreaterThanOrEqual is called when entering the GreaterThanOrEqual production.
-	EnterGreaterThanOrEqual(c *GreaterThanOrEqualContext)
-
-	// EnterInr is called when entering the Inr production.
-	EnterInr(c *InrContext)
+	// EnterTypeAbstraction is called when entering the TypeAbstraction production.
+	EnterTypeAbstraction(c *TypeAbstractionContext)
 
 	// EnterDivide is called when entering the Divide production.
 	EnterDivide(c *DivideContext)
@@ -73,14 +68,8 @@ type StellaParserListener interface {
 	// EnterLessThan is called when entering the LessThan production.
 	EnterLessThan(c *LessThanContext)
 
-	// EnterLogicNot is called when entering the LogicNot production.
-	EnterLogicNot(c *LogicNotContext)
-
 	// EnterDotRecord is called when entering the DotRecord production.
 	EnterDotRecord(c *DotRecordContext)
-
-	// EnterParenthesisedExpr is called when entering the ParenthesisedExpr production.
-	EnterParenthesisedExpr(c *ParenthesisedExprContext)
 
 	// EnterGreaterThan is called when entering the GreaterThan production.
 	EnterGreaterThan(c *GreaterThanContext)
@@ -88,47 +77,29 @@ type StellaParserListener interface {
 	// EnterEqual is called when entering the Equal production.
 	EnterEqual(c *EqualContext)
 
-	// EnterTail is called when entering the Tail production.
-	EnterTail(c *TailContext)
+	// EnterThrow is called when entering the Throw production.
+	EnterThrow(c *ThrowContext)
 
 	// EnterMultiply is called when entering the Multiply production.
 	EnterMultiply(c *MultiplyContext)
 
-	// EnterRecord is called when entering the Record production.
-	EnterRecord(c *RecordContext)
+	// EnterConstMemory is called when entering the ConstMemory production.
+	EnterConstMemory(c *ConstMemoryContext)
 
 	// EnterList is called when entering the List production.
 	EnterList(c *ListContext)
 
-	// EnterLogicAnd is called when entering the LogicAnd production.
-	EnterLogicAnd(c *LogicAndContext)
-
-	// EnterLogicOr is called when entering the LogicOr production.
-	EnterLogicOr(c *LogicOrContext)
+	// EnterTryCatch is called when entering the TryCatch production.
+	EnterTryCatch(c *TryCatchContext)
 
 	// EnterHead is called when entering the Head production.
 	EnterHead(c *HeadContext)
-
-	// EnterTerminatingSemicolon is called when entering the TerminatingSemicolon production.
-	EnterTerminatingSemicolon(c *TerminatingSemicolonContext)
 
 	// EnterNotEqual is called when entering the NotEqual production.
 	EnterNotEqual(c *NotEqualContext)
 
 	// EnterConstUnit is called when entering the ConstUnit production.
 	EnterConstUnit(c *ConstUnitContext)
-
-	// EnterPred is called when entering the Pred production.
-	EnterPred(c *PredContext)
-
-	// EnterMatch is called when entering the match production.
-	EnterMatch(c *MatchContext)
-
-	// EnterTypeAsc is called when entering the TypeAsc production.
-	EnterTypeAsc(c *TypeAscContext)
-
-	// EnterNatRec is called when entering the NatRec production.
-	EnterNatRec(c *NatRecContext)
 
 	// EnterSequence is called when entering the Sequence production.
 	EnterSequence(c *SequenceContext)
@@ -142,14 +113,92 @@ type StellaParserListener interface {
 	// EnterConstInt is called when entering the ConstInt production.
 	EnterConstInt(c *ConstIntContext)
 
-	// EnterUnfold is called when entering the Unfold production.
-	EnterUnfold(c *UnfoldContext)
-
 	// EnterVariant is called when entering the Variant production.
 	EnterVariant(c *VariantContext)
 
 	// EnterConstTrue is called when entering the ConstTrue production.
 	EnterConstTrue(c *ConstTrueContext)
+
+	// EnterSubtract is called when entering the Subtract production.
+	EnterSubtract(c *SubtractContext)
+
+	// EnterTypeCast is called when entering the TypeCast production.
+	EnterTypeCast(c *TypeCastContext)
+
+	// EnterIf is called when entering the If production.
+	EnterIf(c *IfContext)
+
+	// EnterApplication is called when entering the Application production.
+	EnterApplication(c *ApplicationContext)
+
+	// EnterDeref is called when entering the Deref production.
+	EnterDeref(c *DerefContext)
+
+	// EnterIsEmpty is called when entering the IsEmpty production.
+	EnterIsEmpty(c *IsEmptyContext)
+
+	// EnterPanic is called when entering the Panic production.
+	EnterPanic(c *PanicContext)
+
+	// EnterLessThanOrEqual is called when entering the LessThanOrEqual production.
+	EnterLessThanOrEqual(c *LessThanOrEqualContext)
+
+	// EnterSucc is called when entering the Succ production.
+	EnterSucc(c *SuccContext)
+
+	// EnterInl is called when entering the Inl production.
+	EnterInl(c *InlContext)
+
+	// EnterGreaterThanOrEqual is called when entering the GreaterThanOrEqual production.
+	EnterGreaterThanOrEqual(c *GreaterThanOrEqualContext)
+
+	// EnterInr is called when entering the Inr production.
+	EnterInr(c *InrContext)
+
+	// EnterMatch is called when entering the Match production.
+	EnterMatch(c *MatchContext)
+
+	// EnterLogicNot is called when entering the LogicNot production.
+	EnterLogicNot(c *LogicNotContext)
+
+	// EnterParenthesisedExpr is called when entering the ParenthesisedExpr production.
+	EnterParenthesisedExpr(c *ParenthesisedExprContext)
+
+	// EnterTail is called when entering the Tail production.
+	EnterTail(c *TailContext)
+
+	// EnterRecord is called when entering the Record production.
+	EnterRecord(c *RecordContext)
+
+	// EnterLogicAnd is called when entering the LogicAnd production.
+	EnterLogicAnd(c *LogicAndContext)
+
+	// EnterTypeApplication is called when entering the TypeApplication production.
+	EnterTypeApplication(c *TypeApplicationContext)
+
+	// EnterLetRec is called when entering the LetRec production.
+	EnterLetRec(c *LetRecContext)
+
+	// EnterLogicOr is called when entering the LogicOr production.
+	EnterLogicOr(c *LogicOrContext)
+
+	// EnterTryWith is called when entering the TryWith production.
+	EnterTryWith(c *TryWithContext)
+
+	// EnterPred is called when entering the Pred production.
+	EnterPred(c *PredContext)
+
+	// EnterTypeAsc is called when entering the TypeAsc production.
+	EnterTypeAsc(c *TypeAscContext)
+
+	// EnterNatRec is called when entering the NatRec production.
+	EnterNatRec(c *NatRecContext)
+
+	// EnterUnfold is called when entering the Unfold production.
+	EnterUnfold(c *UnfoldContext)
+
+	// EnterRef is called when entering the Ref production.
+	EnterRef(c *RefContext)
 
 	// EnterDotTuple is called when entering the DotTuple production.
 	EnterDotTuple(c *DotTupleContext)
@@ -157,17 +206,11 @@ type StellaParserListener interface {
 	// EnterFix is called when entering the Fix production.
 	EnterFix(c *FixContext)
 
-	// EnterSubtract is called when entering the Subtract production.
-	EnterSubtract(c *SubtractContext)
-
 	// EnterLet is called when entering the Let production.
 	EnterLet(c *LetContext)
 
-	// EnterIf is called when entering the If production.
-	EnterIf(c *IfContext)
-
-	// EnterApplication is called when entering the Application production.
-	EnterApplication(c *ApplicationContext)
+	// EnterAssign is called when entering the Assign production.
+	EnterAssign(c *AssignContext)
 
 	// EnterTuple is called when entering the Tuple production.
 	EnterTuple(c *TupleContext)
@@ -181,8 +224,8 @@ type StellaParserListener interface {
 	// EnterBinding is called when entering the binding production.
 	EnterBinding(c *BindingContext)
 
-	// EnterMatch_case is called when entering the match_case production.
-	EnterMatch_case(c *Match_caseContext)
+	// EnterMatchCase is called when entering the matchCase production.
+	EnterMatchCase(c *MatchCaseContext)
 
 	// EnterPatternVariant is called when entering the PatternVariant production.
 	EnterPatternVariant(c *PatternVariantContext)
@@ -232,6 +275,21 @@ type StellaParserListener interface {
 	// EnterTypeTuple is called when entering the TypeTuple production.
 	EnterTypeTuple(c *TypeTupleContext)
 
+	// EnterTypeTop is called when entering the TypeTop production.
+	EnterTypeTop(c *TypeTopContext)
+
+	// EnterTypeBool is called when entering the TypeBool production.
+	EnterTypeBool(c *TypeBoolContext)
+
+	// EnterTypeRef is called when entering the TypeRef production.
+	EnterTypeRef(c *TypeRefContext)
+
+	// EnterTypeRec is called when entering the TypeRec production.
+	EnterTypeRec(c *TypeRecContext)
+
+	// EnterTypeSum is called when entering the TypeSum production.
+	EnterTypeSum(c *TypeSumContext)
+
 	// EnterTypeVar is called when entering the TypeVar production.
 	EnterTypeVar(c *TypeVarContext)
 
@@ -241,14 +299,11 @@ type StellaParserListener interface {
 	// EnterTypeUnit is called when entering the TypeUnit production.
 	EnterTypeUnit(c *TypeUnitContext)
 
-	// EnterTypeBool is called when entering the TypeBool production.
-	EnterTypeBool(c *TypeBoolContext)
-
 	// EnterTypeNat is called when entering the TypeNat production.
 	EnterTypeNat(c *TypeNatContext)
 
-	// EnterTypeRec is called when entering the TypeRec production.
-	EnterTypeRec(c *TypeRecContext)
+	// EnterTypeBottom is called when entering the TypeBottom production.
+	EnterTypeBottom(c *TypeBottomContext)
 
 	// EnterTypeParens is called when entering the TypeParens production.
 	EnterTypeParens(c *TypeParensContext)
@@ -256,14 +311,14 @@ type StellaParserListener interface {
 	// EnterTypeFun is called when entering the TypeFun production.
 	EnterTypeFun(c *TypeFunContext)
 
+	// EnterTypeForAll is called when entering the TypeForAll production.
+	EnterTypeForAll(c *TypeForAllContext)
+
 	// EnterTypeRecord is called when entering the TypeRecord production.
 	EnterTypeRecord(c *TypeRecordContext)
 
 	// EnterTypeList is called when entering the TypeList production.
 	EnterTypeList(c *TypeListContext)
-
-	// EnterTypeSum is called when entering the TypeSum production.
-	EnterTypeSum(c *TypeSumContext)
 
 	// EnterRecordFieldType is called when entering the recordFieldType production.
 	EnterRecordFieldType(c *RecordFieldTypeContext)
@@ -292,17 +347,23 @@ type StellaParserListener interface {
 	// ExitDeclFun is called when exiting the DeclFun production.
 	ExitDeclFun(c *DeclFunContext)
 
+	// ExitDeclFunGeneric is called when exiting the DeclFunGeneric production.
+	ExitDeclFunGeneric(c *DeclFunGenericContext)
+
 	// ExitDeclTypeAlias is called when exiting the DeclTypeAlias production.
 	ExitDeclTypeAlias(c *DeclTypeAliasContext)
+
+	// ExitDeclExceptionType is called when exiting the DeclExceptionType production.
+	ExitDeclExceptionType(c *DeclExceptionTypeContext)
+
+	// ExitDeclExceptionVariant is called when exiting the DeclExceptionVariant production.
+	ExitDeclExceptionVariant(c *DeclExceptionVariantContext)
 
 	// ExitInlineAnnotation is called when exiting the InlineAnnotation production.
 	ExitInlineAnnotation(c *InlineAnnotationContext)
 
 	// ExitParamDecl is called when exiting the paramDecl production.
 	ExitParamDecl(c *ParamDeclContext)
-
-	// ExitIsEmpty is called when exiting the IsEmpty production.
-	ExitIsEmpty(c *IsEmptyContext)
 
 	// ExitFold is called when exiting the Fold production.
 	ExitFold(c *FoldContext)
@@ -313,23 +374,11 @@ type StellaParserListener interface {
 	// ExitIsZero is called when exiting the IsZero production.
 	ExitIsZero(c *IsZeroContext)
 
-	// ExitLessThanOrEqual is called when exiting the LessThanOrEqual production.
-	ExitLessThanOrEqual(c *LessThanOrEqualContext)
-
-	// ExitSucc is called when exiting the Succ production.
-	ExitSucc(c *SuccContext)
-
 	// ExitVar is called when exiting the Var production.
 	ExitVar(c *VarContext)
 
-	// ExitInl is called when exiting the Inl production.
-	ExitInl(c *InlContext)
-
-	// ExitGreaterThanOrEqual is called when exiting the GreaterThanOrEqual production.
-	ExitGreaterThanOrEqual(c *GreaterThanOrEqualContext)
-
-	// ExitInr is called when exiting the Inr production.
-	ExitInr(c *InrContext)
+	// ExitTypeAbstraction is called when exiting the TypeAbstraction production.
+	ExitTypeAbstraction(c *TypeAbstractionContext)
 
 	// ExitDivide is called when exiting the Divide production.
 	ExitDivide(c *DivideContext)
@@ -337,14 +386,8 @@ type StellaParserListener interface {
 	// ExitLessThan is called when exiting the LessThan production.
 	ExitLessThan(c *LessThanContext)
 
-	// ExitLogicNot is called when exiting the LogicNot production.
-	ExitLogicNot(c *LogicNotContext)
-
 	// ExitDotRecord is called when exiting the DotRecord production.
 	ExitDotRecord(c *DotRecordContext)
-
-	// ExitParenthesisedExpr is called when exiting the ParenthesisedExpr production.
-	ExitParenthesisedExpr(c *ParenthesisedExprContext)
 
 	// ExitGreaterThan is called when exiting the GreaterThan production.
 	ExitGreaterThan(c *GreaterThanContext)
@@ -352,47 +395,29 @@ type StellaParserListener interface {
 	// ExitEqual is called when exiting the Equal production.
 	ExitEqual(c *EqualContext)
 
-	// ExitTail is called when exiting the Tail production.
-	ExitTail(c *TailContext)
+	// ExitThrow is called when exiting the Throw production.
+	ExitThrow(c *ThrowContext)
 
 	// ExitMultiply is called when exiting the Multiply production.
 	ExitMultiply(c *MultiplyContext)
 
-	// ExitRecord is called when exiting the Record production.
-	ExitRecord(c *RecordContext)
+	// ExitConstMemory is called when exiting the ConstMemory production.
+	ExitConstMemory(c *ConstMemoryContext)
 
 	// ExitList is called when exiting the List production.
 	ExitList(c *ListContext)
 
-	// ExitLogicAnd is called when exiting the LogicAnd production.
-	ExitLogicAnd(c *LogicAndContext)
-
-	// ExitLogicOr is called when exiting the LogicOr production.
-	ExitLogicOr(c *LogicOrContext)
+	// ExitTryCatch is called when exiting the TryCatch production.
+	ExitTryCatch(c *TryCatchContext)
 
 	// ExitHead is called when exiting the Head production.
 	ExitHead(c *HeadContext)
-
-	// ExitTerminatingSemicolon is called when exiting the TerminatingSemicolon production.
-	ExitTerminatingSemicolon(c *TerminatingSemicolonContext)
 
 	// ExitNotEqual is called when exiting the NotEqual production.
 	ExitNotEqual(c *NotEqualContext)
 
 	// ExitConstUnit is called when exiting the ConstUnit production.
 	ExitConstUnit(c *ConstUnitContext)
-
-	// ExitPred is called when exiting the Pred production.
-	ExitPred(c *PredContext)
-
-	// ExitMatch is called when exiting the match production.
-	ExitMatch(c *MatchContext)
-
-	// ExitTypeAsc is called when exiting the TypeAsc production.
-	ExitTypeAsc(c *TypeAscContext)
-
-	// ExitNatRec is called when exiting the NatRec production.
-	ExitNatRec(c *NatRecContext)
 
 	// ExitSequence is called when exiting the Sequence production.
 	ExitSequence(c *SequenceContext)
@@ -406,14 +431,92 @@ type StellaParserListener interface {
 	// ExitConstInt is called when exiting the ConstInt production.
 	ExitConstInt(c *ConstIntContext)
 
-	// ExitUnfold is called when exiting the Unfold production.
-	ExitUnfold(c *UnfoldContext)
-
 	// ExitVariant is called when exiting the Variant production.
 	ExitVariant(c *VariantContext)
 
 	// ExitConstTrue is called when exiting the ConstTrue production.
 	ExitConstTrue(c *ConstTrueContext)
+
+	// ExitSubtract is called when exiting the Subtract production.
+	ExitSubtract(c *SubtractContext)
+
+	// ExitTypeCast is called when exiting the TypeCast production.
+	ExitTypeCast(c *TypeCastContext)
+
+	// ExitIf is called when exiting the If production.
+	ExitIf(c *IfContext)
+
+	// ExitApplication is called when exiting the Application production.
+	ExitApplication(c *ApplicationContext)
+
+	// ExitDeref is called when exiting the Deref production.
+	ExitDeref(c *DerefContext)
+
+	// ExitIsEmpty is called when exiting the IsEmpty production.
+	ExitIsEmpty(c *IsEmptyContext)
+
+	// ExitPanic is called when exiting the Panic production.
+	ExitPanic(c *PanicContext)
+
+	// ExitLessThanOrEqual is called when exiting the LessThanOrEqual production.
+	ExitLessThanOrEqual(c *LessThanOrEqualContext)
+
+	// ExitSucc is called when exiting the Succ production.
+	ExitSucc(c *SuccContext)
+
+	// ExitInl is called when exiting the Inl production.
+	ExitInl(c *InlContext)
+
+	// ExitGreaterThanOrEqual is called when exiting the GreaterThanOrEqual production.
+	ExitGreaterThanOrEqual(c *GreaterThanOrEqualContext)
+
+	// ExitInr is called when exiting the Inr production.
+	ExitInr(c *InrContext)
+
+	// ExitMatch is called when exiting the Match production.
+	ExitMatch(c *MatchContext)
+
+	// ExitLogicNot is called when exiting the LogicNot production.
+	ExitLogicNot(c *LogicNotContext)
+
+	// ExitParenthesisedExpr is called when exiting the ParenthesisedExpr production.
+	ExitParenthesisedExpr(c *ParenthesisedExprContext)
+
+	// ExitTail is called when exiting the Tail production.
+	ExitTail(c *TailContext)
+
+	// ExitRecord is called when exiting the Record production.
+	ExitRecord(c *RecordContext)
+
+	// ExitLogicAnd is called when exiting the LogicAnd production.
+	ExitLogicAnd(c *LogicAndContext)
+
+	// ExitTypeApplication is called when exiting the TypeApplication production.
+	ExitTypeApplication(c *TypeApplicationContext)
+
+	// ExitLetRec is called when exiting the LetRec production.
+	ExitLetRec(c *LetRecContext)
+
+	// ExitLogicOr is called when exiting the LogicOr production.
+	ExitLogicOr(c *LogicOrContext)
+
+	// ExitTryWith is called when exiting the TryWith production.
+	ExitTryWith(c *TryWithContext)
+
+	// ExitPred is called when exiting the Pred production.
+	ExitPred(c *PredContext)
+
+	// ExitTypeAsc is called when exiting the TypeAsc production.
+	ExitTypeAsc(c *TypeAscContext)
+
+	// ExitNatRec is called when exiting the NatRec production.
+	ExitNatRec(c *NatRecContext)
+
+	// ExitUnfold is called when exiting the Unfold production.
+	ExitUnfold(c *UnfoldContext)
+
+	// ExitRef is called when exiting the Ref production.
+	ExitRef(c *RefContext)
 
 	// ExitDotTuple is called when exiting the DotTuple production.
 	ExitDotTuple(c *DotTupleContext)
@@ -421,17 +524,11 @@ type StellaParserListener interface {
 	// ExitFix is called when exiting the Fix production.
 	ExitFix(c *FixContext)
 
-	// ExitSubtract is called when exiting the Subtract production.
-	ExitSubtract(c *SubtractContext)
-
 	// ExitLet is called when exiting the Let production.
 	ExitLet(c *LetContext)
 
-	// ExitIf is called when exiting the If production.
-	ExitIf(c *IfContext)
-
-	// ExitApplication is called when exiting the Application production.
-	ExitApplication(c *ApplicationContext)
+	// ExitAssign is called when exiting the Assign production.
+	ExitAssign(c *AssignContext)
 
 	// ExitTuple is called when exiting the Tuple production.
 	ExitTuple(c *TupleContext)
@@ -445,8 +542,8 @@ type StellaParserListener interface {
 	// ExitBinding is called when exiting the binding production.
 	ExitBinding(c *BindingContext)
 
-	// ExitMatch_case is called when exiting the match_case production.
-	ExitMatch_case(c *Match_caseContext)
+	// ExitMatchCase is called when exiting the matchCase production.
+	ExitMatchCase(c *MatchCaseContext)
 
 	// ExitPatternVariant is called when exiting the PatternVariant production.
 	ExitPatternVariant(c *PatternVariantContext)
@@ -496,6 +593,21 @@ type StellaParserListener interface {
 	// ExitTypeTuple is called when exiting the TypeTuple production.
 	ExitTypeTuple(c *TypeTupleContext)
 
+	// ExitTypeTop is called when exiting the TypeTop production.
+	ExitTypeTop(c *TypeTopContext)
+
+	// ExitTypeBool is called when exiting the TypeBool production.
+	ExitTypeBool(c *TypeBoolContext)
+
+	// ExitTypeRef is called when exiting the TypeRef production.
+	ExitTypeRef(c *TypeRefContext)
+
+	// ExitTypeRec is called when exiting the TypeRec production.
+	ExitTypeRec(c *TypeRecContext)
+
+	// ExitTypeSum is called when exiting the TypeSum production.
+	ExitTypeSum(c *TypeSumContext)
+
 	// ExitTypeVar is called when exiting the TypeVar production.
 	ExitTypeVar(c *TypeVarContext)
 
@@ -505,14 +617,11 @@ type StellaParserListener interface {
 	// ExitTypeUnit is called when exiting the TypeUnit production.
 	ExitTypeUnit(c *TypeUnitContext)
 
-	// ExitTypeBool is called when exiting the TypeBool production.
-	ExitTypeBool(c *TypeBoolContext)
-
 	// ExitTypeNat is called when exiting the TypeNat production.
 	ExitTypeNat(c *TypeNatContext)
 
-	// ExitTypeRec is called when exiting the TypeRec production.
-	ExitTypeRec(c *TypeRecContext)
+	// ExitTypeBottom is called when exiting the TypeBottom production.
+	ExitTypeBottom(c *TypeBottomContext)
 
 	// ExitTypeParens is called when exiting the TypeParens production.
 	ExitTypeParens(c *TypeParensContext)
@@ -520,14 +629,14 @@ type StellaParserListener interface {
 	// ExitTypeFun is called when exiting the TypeFun production.
 	ExitTypeFun(c *TypeFunContext)
 
+	// ExitTypeForAll is called when exiting the TypeForAll production.
+	ExitTypeForAll(c *TypeForAllContext)
+
 	// ExitTypeRecord is called when exiting the TypeRecord production.
 	ExitTypeRecord(c *TypeRecordContext)
 
 	// ExitTypeList is called when exiting the TypeList production.
 	ExitTypeList(c *TypeListContext)
-
-	// ExitTypeSum is called when exiting the TypeSum production.
-	ExitTypeSum(c *TypeSumContext)
 
 	// ExitRecordFieldType is called when exiting the recordFieldType production.
 	ExitRecordFieldType(c *RecordFieldTypeContext)

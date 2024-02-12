@@ -1,6 +1,7 @@
-// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
+// Code generated from StellaParser.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // StellaParser
+
 import "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 
 // BaseStellaParserListener is a complete listener for a parse tree produced by StellaParser.
@@ -62,11 +63,29 @@ func (s *BaseStellaParserListener) EnterDeclFun(ctx *DeclFunContext) {}
 // ExitDeclFun is called when production DeclFun is exited.
 func (s *BaseStellaParserListener) ExitDeclFun(ctx *DeclFunContext) {}
 
+// EnterDeclFunGeneric is called when production DeclFunGeneric is entered.
+func (s *BaseStellaParserListener) EnterDeclFunGeneric(ctx *DeclFunGenericContext) {}
+
+// ExitDeclFunGeneric is called when production DeclFunGeneric is exited.
+func (s *BaseStellaParserListener) ExitDeclFunGeneric(ctx *DeclFunGenericContext) {}
+
 // EnterDeclTypeAlias is called when production DeclTypeAlias is entered.
 func (s *BaseStellaParserListener) EnterDeclTypeAlias(ctx *DeclTypeAliasContext) {}
 
 // ExitDeclTypeAlias is called when production DeclTypeAlias is exited.
 func (s *BaseStellaParserListener) ExitDeclTypeAlias(ctx *DeclTypeAliasContext) {}
+
+// EnterDeclExceptionType is called when production DeclExceptionType is entered.
+func (s *BaseStellaParserListener) EnterDeclExceptionType(ctx *DeclExceptionTypeContext) {}
+
+// ExitDeclExceptionType is called when production DeclExceptionType is exited.
+func (s *BaseStellaParserListener) ExitDeclExceptionType(ctx *DeclExceptionTypeContext) {}
+
+// EnterDeclExceptionVariant is called when production DeclExceptionVariant is entered.
+func (s *BaseStellaParserListener) EnterDeclExceptionVariant(ctx *DeclExceptionVariantContext) {}
+
+// ExitDeclExceptionVariant is called when production DeclExceptionVariant is exited.
+func (s *BaseStellaParserListener) ExitDeclExceptionVariant(ctx *DeclExceptionVariantContext) {}
 
 // EnterInlineAnnotation is called when production InlineAnnotation is entered.
 func (s *BaseStellaParserListener) EnterInlineAnnotation(ctx *InlineAnnotationContext) {}
@@ -79,12 +98,6 @@ func (s *BaseStellaParserListener) EnterParamDecl(ctx *ParamDeclContext) {}
 
 // ExitParamDecl is called when production paramDecl is exited.
 func (s *BaseStellaParserListener) ExitParamDecl(ctx *ParamDeclContext) {}
-
-// EnterIsEmpty is called when production IsEmpty is entered.
-func (s *BaseStellaParserListener) EnterIsEmpty(ctx *IsEmptyContext) {}
-
-// ExitIsEmpty is called when production IsEmpty is exited.
-func (s *BaseStellaParserListener) ExitIsEmpty(ctx *IsEmptyContext) {}
 
 // EnterFold is called when production Fold is entered.
 func (s *BaseStellaParserListener) EnterFold(ctx *FoldContext) {}
@@ -104,41 +117,17 @@ func (s *BaseStellaParserListener) EnterIsZero(ctx *IsZeroContext) {}
 // ExitIsZero is called when production IsZero is exited.
 func (s *BaseStellaParserListener) ExitIsZero(ctx *IsZeroContext) {}
 
-// EnterLessThanOrEqual is called when production LessThanOrEqual is entered.
-func (s *BaseStellaParserListener) EnterLessThanOrEqual(ctx *LessThanOrEqualContext) {}
-
-// ExitLessThanOrEqual is called when production LessThanOrEqual is exited.
-func (s *BaseStellaParserListener) ExitLessThanOrEqual(ctx *LessThanOrEqualContext) {}
-
-// EnterSucc is called when production Succ is entered.
-func (s *BaseStellaParserListener) EnterSucc(ctx *SuccContext) {}
-
-// ExitSucc is called when production Succ is exited.
-func (s *BaseStellaParserListener) ExitSucc(ctx *SuccContext) {}
-
 // EnterVar is called when production Var is entered.
 func (s *BaseStellaParserListener) EnterVar(ctx *VarContext) {}
 
 // ExitVar is called when production Var is exited.
 func (s *BaseStellaParserListener) ExitVar(ctx *VarContext) {}
 
-// EnterInl is called when production Inl is entered.
-func (s *BaseStellaParserListener) EnterInl(ctx *InlContext) {}
+// EnterTypeAbstraction is called when production TypeAbstraction is entered.
+func (s *BaseStellaParserListener) EnterTypeAbstraction(ctx *TypeAbstractionContext) {}
 
-// ExitInl is called when production Inl is exited.
-func (s *BaseStellaParserListener) ExitInl(ctx *InlContext) {}
-
-// EnterGreaterThanOrEqual is called when production GreaterThanOrEqual is entered.
-func (s *BaseStellaParserListener) EnterGreaterThanOrEqual(ctx *GreaterThanOrEqualContext) {}
-
-// ExitGreaterThanOrEqual is called when production GreaterThanOrEqual is exited.
-func (s *BaseStellaParserListener) ExitGreaterThanOrEqual(ctx *GreaterThanOrEqualContext) {}
-
-// EnterInr is called when production Inr is entered.
-func (s *BaseStellaParserListener) EnterInr(ctx *InrContext) {}
-
-// ExitInr is called when production Inr is exited.
-func (s *BaseStellaParserListener) ExitInr(ctx *InrContext) {}
+// ExitTypeAbstraction is called when production TypeAbstraction is exited.
+func (s *BaseStellaParserListener) ExitTypeAbstraction(ctx *TypeAbstractionContext) {}
 
 // EnterDivide is called when production Divide is entered.
 func (s *BaseStellaParserListener) EnterDivide(ctx *DivideContext) {}
@@ -152,23 +141,11 @@ func (s *BaseStellaParserListener) EnterLessThan(ctx *LessThanContext) {}
 // ExitLessThan is called when production LessThan is exited.
 func (s *BaseStellaParserListener) ExitLessThan(ctx *LessThanContext) {}
 
-// EnterLogicNot is called when production LogicNot is entered.
-func (s *BaseStellaParserListener) EnterLogicNot(ctx *LogicNotContext) {}
-
-// ExitLogicNot is called when production LogicNot is exited.
-func (s *BaseStellaParserListener) ExitLogicNot(ctx *LogicNotContext) {}
-
 // EnterDotRecord is called when production DotRecord is entered.
 func (s *BaseStellaParserListener) EnterDotRecord(ctx *DotRecordContext) {}
 
 // ExitDotRecord is called when production DotRecord is exited.
 func (s *BaseStellaParserListener) ExitDotRecord(ctx *DotRecordContext) {}
-
-// EnterParenthesisedExpr is called when production ParenthesisedExpr is entered.
-func (s *BaseStellaParserListener) EnterParenthesisedExpr(ctx *ParenthesisedExprContext) {}
-
-// ExitParenthesisedExpr is called when production ParenthesisedExpr is exited.
-func (s *BaseStellaParserListener) ExitParenthesisedExpr(ctx *ParenthesisedExprContext) {}
 
 // EnterGreaterThan is called when production GreaterThan is entered.
 func (s *BaseStellaParserListener) EnterGreaterThan(ctx *GreaterThanContext) {}
@@ -182,11 +159,11 @@ func (s *BaseStellaParserListener) EnterEqual(ctx *EqualContext) {}
 // ExitEqual is called when production Equal is exited.
 func (s *BaseStellaParserListener) ExitEqual(ctx *EqualContext) {}
 
-// EnterTail is called when production Tail is entered.
-func (s *BaseStellaParserListener) EnterTail(ctx *TailContext) {}
+// EnterThrow is called when production Throw is entered.
+func (s *BaseStellaParserListener) EnterThrow(ctx *ThrowContext) {}
 
-// ExitTail is called when production Tail is exited.
-func (s *BaseStellaParserListener) ExitTail(ctx *TailContext) {}
+// ExitThrow is called when production Throw is exited.
+func (s *BaseStellaParserListener) ExitThrow(ctx *ThrowContext) {}
 
 // EnterMultiply is called when production Multiply is entered.
 func (s *BaseStellaParserListener) EnterMultiply(ctx *MultiplyContext) {}
@@ -194,11 +171,11 @@ func (s *BaseStellaParserListener) EnterMultiply(ctx *MultiplyContext) {}
 // ExitMultiply is called when production Multiply is exited.
 func (s *BaseStellaParserListener) ExitMultiply(ctx *MultiplyContext) {}
 
-// EnterRecord is called when production Record is entered.
-func (s *BaseStellaParserListener) EnterRecord(ctx *RecordContext) {}
+// EnterConstMemory is called when production ConstMemory is entered.
+func (s *BaseStellaParserListener) EnterConstMemory(ctx *ConstMemoryContext) {}
 
-// ExitRecord is called when production Record is exited.
-func (s *BaseStellaParserListener) ExitRecord(ctx *RecordContext) {}
+// ExitConstMemory is called when production ConstMemory is exited.
+func (s *BaseStellaParserListener) ExitConstMemory(ctx *ConstMemoryContext) {}
 
 // EnterList is called when production List is entered.
 func (s *BaseStellaParserListener) EnterList(ctx *ListContext) {}
@@ -206,29 +183,17 @@ func (s *BaseStellaParserListener) EnterList(ctx *ListContext) {}
 // ExitList is called when production List is exited.
 func (s *BaseStellaParserListener) ExitList(ctx *ListContext) {}
 
-// EnterLogicAnd is called when production LogicAnd is entered.
-func (s *BaseStellaParserListener) EnterLogicAnd(ctx *LogicAndContext) {}
+// EnterTryCatch is called when production TryCatch is entered.
+func (s *BaseStellaParserListener) EnterTryCatch(ctx *TryCatchContext) {}
 
-// ExitLogicAnd is called when production LogicAnd is exited.
-func (s *BaseStellaParserListener) ExitLogicAnd(ctx *LogicAndContext) {}
-
-// EnterLogicOr is called when production LogicOr is entered.
-func (s *BaseStellaParserListener) EnterLogicOr(ctx *LogicOrContext) {}
-
-// ExitLogicOr is called when production LogicOr is exited.
-func (s *BaseStellaParserListener) ExitLogicOr(ctx *LogicOrContext) {}
+// ExitTryCatch is called when production TryCatch is exited.
+func (s *BaseStellaParserListener) ExitTryCatch(ctx *TryCatchContext) {}
 
 // EnterHead is called when production Head is entered.
 func (s *BaseStellaParserListener) EnterHead(ctx *HeadContext) {}
 
 // ExitHead is called when production Head is exited.
 func (s *BaseStellaParserListener) ExitHead(ctx *HeadContext) {}
-
-// EnterTerminatingSemicolon is called when production TerminatingSemicolon is entered.
-func (s *BaseStellaParserListener) EnterTerminatingSemicolon(ctx *TerminatingSemicolonContext) {}
-
-// ExitTerminatingSemicolon is called when production TerminatingSemicolon is exited.
-func (s *BaseStellaParserListener) ExitTerminatingSemicolon(ctx *TerminatingSemicolonContext) {}
 
 // EnterNotEqual is called when production NotEqual is entered.
 func (s *BaseStellaParserListener) EnterNotEqual(ctx *NotEqualContext) {}
@@ -241,30 +206,6 @@ func (s *BaseStellaParserListener) EnterConstUnit(ctx *ConstUnitContext) {}
 
 // ExitConstUnit is called when production ConstUnit is exited.
 func (s *BaseStellaParserListener) ExitConstUnit(ctx *ConstUnitContext) {}
-
-// EnterPred is called when production Pred is entered.
-func (s *BaseStellaParserListener) EnterPred(ctx *PredContext) {}
-
-// ExitPred is called when production Pred is exited.
-func (s *BaseStellaParserListener) ExitPred(ctx *PredContext) {}
-
-// EnterMatch is called when production match is entered.
-func (s *BaseStellaParserListener) EnterMatch(ctx *MatchContext) {}
-
-// ExitMatch is called when production match is exited.
-func (s *BaseStellaParserListener) ExitMatch(ctx *MatchContext) {}
-
-// EnterTypeAsc is called when production TypeAsc is entered.
-func (s *BaseStellaParserListener) EnterTypeAsc(ctx *TypeAscContext) {}
-
-// ExitTypeAsc is called when production TypeAsc is exited.
-func (s *BaseStellaParserListener) ExitTypeAsc(ctx *TypeAscContext) {}
-
-// EnterNatRec is called when production NatRec is entered.
-func (s *BaseStellaParserListener) EnterNatRec(ctx *NatRecContext) {}
-
-// ExitNatRec is called when production NatRec is exited.
-func (s *BaseStellaParserListener) ExitNatRec(ctx *NatRecContext) {}
 
 // EnterSequence is called when production Sequence is entered.
 func (s *BaseStellaParserListener) EnterSequence(ctx *SequenceContext) {}
@@ -290,12 +231,6 @@ func (s *BaseStellaParserListener) EnterConstInt(ctx *ConstIntContext) {}
 // ExitConstInt is called when production ConstInt is exited.
 func (s *BaseStellaParserListener) ExitConstInt(ctx *ConstIntContext) {}
 
-// EnterUnfold is called when production Unfold is entered.
-func (s *BaseStellaParserListener) EnterUnfold(ctx *UnfoldContext) {}
-
-// ExitUnfold is called when production Unfold is exited.
-func (s *BaseStellaParserListener) ExitUnfold(ctx *UnfoldContext) {}
-
 // EnterVariant is called when production Variant is entered.
 func (s *BaseStellaParserListener) EnterVariant(ctx *VariantContext) {}
 
@@ -307,6 +242,168 @@ func (s *BaseStellaParserListener) EnterConstTrue(ctx *ConstTrueContext) {}
 
 // ExitConstTrue is called when production ConstTrue is exited.
 func (s *BaseStellaParserListener) ExitConstTrue(ctx *ConstTrueContext) {}
+
+// EnterSubtract is called when production Subtract is entered.
+func (s *BaseStellaParserListener) EnterSubtract(ctx *SubtractContext) {}
+
+// ExitSubtract is called when production Subtract is exited.
+func (s *BaseStellaParserListener) ExitSubtract(ctx *SubtractContext) {}
+
+// EnterTypeCast is called when production TypeCast is entered.
+func (s *BaseStellaParserListener) EnterTypeCast(ctx *TypeCastContext) {}
+
+// ExitTypeCast is called when production TypeCast is exited.
+func (s *BaseStellaParserListener) ExitTypeCast(ctx *TypeCastContext) {}
+
+// EnterIf is called when production If is entered.
+func (s *BaseStellaParserListener) EnterIf(ctx *IfContext) {}
+
+// ExitIf is called when production If is exited.
+func (s *BaseStellaParserListener) ExitIf(ctx *IfContext) {}
+
+// EnterApplication is called when production Application is entered.
+func (s *BaseStellaParserListener) EnterApplication(ctx *ApplicationContext) {}
+
+// ExitApplication is called when production Application is exited.
+func (s *BaseStellaParserListener) ExitApplication(ctx *ApplicationContext) {}
+
+// EnterDeref is called when production Deref is entered.
+func (s *BaseStellaParserListener) EnterDeref(ctx *DerefContext) {}
+
+// ExitDeref is called when production Deref is exited.
+func (s *BaseStellaParserListener) ExitDeref(ctx *DerefContext) {}
+
+// EnterIsEmpty is called when production IsEmpty is entered.
+func (s *BaseStellaParserListener) EnterIsEmpty(ctx *IsEmptyContext) {}
+
+// ExitIsEmpty is called when production IsEmpty is exited.
+func (s *BaseStellaParserListener) ExitIsEmpty(ctx *IsEmptyContext) {}
+
+// EnterPanic is called when production Panic is entered.
+func (s *BaseStellaParserListener) EnterPanic(ctx *PanicContext) {}
+
+// ExitPanic is called when production Panic is exited.
+func (s *BaseStellaParserListener) ExitPanic(ctx *PanicContext) {}
+
+// EnterLessThanOrEqual is called when production LessThanOrEqual is entered.
+func (s *BaseStellaParserListener) EnterLessThanOrEqual(ctx *LessThanOrEqualContext) {}
+
+// ExitLessThanOrEqual is called when production LessThanOrEqual is exited.
+func (s *BaseStellaParserListener) ExitLessThanOrEqual(ctx *LessThanOrEqualContext) {}
+
+// EnterSucc is called when production Succ is entered.
+func (s *BaseStellaParserListener) EnterSucc(ctx *SuccContext) {}
+
+// ExitSucc is called when production Succ is exited.
+func (s *BaseStellaParserListener) ExitSucc(ctx *SuccContext) {}
+
+// EnterInl is called when production Inl is entered.
+func (s *BaseStellaParserListener) EnterInl(ctx *InlContext) {}
+
+// ExitInl is called when production Inl is exited.
+func (s *BaseStellaParserListener) ExitInl(ctx *InlContext) {}
+
+// EnterGreaterThanOrEqual is called when production GreaterThanOrEqual is entered.
+func (s *BaseStellaParserListener) EnterGreaterThanOrEqual(ctx *GreaterThanOrEqualContext) {}
+
+// ExitGreaterThanOrEqual is called when production GreaterThanOrEqual is exited.
+func (s *BaseStellaParserListener) ExitGreaterThanOrEqual(ctx *GreaterThanOrEqualContext) {}
+
+// EnterInr is called when production Inr is entered.
+func (s *BaseStellaParserListener) EnterInr(ctx *InrContext) {}
+
+// ExitInr is called when production Inr is exited.
+func (s *BaseStellaParserListener) ExitInr(ctx *InrContext) {}
+
+// EnterMatch is called when production Match is entered.
+func (s *BaseStellaParserListener) EnterMatch(ctx *MatchContext) {}
+
+// ExitMatch is called when production Match is exited.
+func (s *BaseStellaParserListener) ExitMatch(ctx *MatchContext) {}
+
+// EnterLogicNot is called when production LogicNot is entered.
+func (s *BaseStellaParserListener) EnterLogicNot(ctx *LogicNotContext) {}
+
+// ExitLogicNot is called when production LogicNot is exited.
+func (s *BaseStellaParserListener) ExitLogicNot(ctx *LogicNotContext) {}
+
+// EnterParenthesisedExpr is called when production ParenthesisedExpr is entered.
+func (s *BaseStellaParserListener) EnterParenthesisedExpr(ctx *ParenthesisedExprContext) {}
+
+// ExitParenthesisedExpr is called when production ParenthesisedExpr is exited.
+func (s *BaseStellaParserListener) ExitParenthesisedExpr(ctx *ParenthesisedExprContext) {}
+
+// EnterTail is called when production Tail is entered.
+func (s *BaseStellaParserListener) EnterTail(ctx *TailContext) {}
+
+// ExitTail is called when production Tail is exited.
+func (s *BaseStellaParserListener) ExitTail(ctx *TailContext) {}
+
+// EnterRecord is called when production Record is entered.
+func (s *BaseStellaParserListener) EnterRecord(ctx *RecordContext) {}
+
+// ExitRecord is called when production Record is exited.
+func (s *BaseStellaParserListener) ExitRecord(ctx *RecordContext) {}
+
+// EnterLogicAnd is called when production LogicAnd is entered.
+func (s *BaseStellaParserListener) EnterLogicAnd(ctx *LogicAndContext) {}
+
+// ExitLogicAnd is called when production LogicAnd is exited.
+func (s *BaseStellaParserListener) ExitLogicAnd(ctx *LogicAndContext) {}
+
+// EnterTypeApplication is called when production TypeApplication is entered.
+func (s *BaseStellaParserListener) EnterTypeApplication(ctx *TypeApplicationContext) {}
+
+// ExitTypeApplication is called when production TypeApplication is exited.
+func (s *BaseStellaParserListener) ExitTypeApplication(ctx *TypeApplicationContext) {}
+
+// EnterLetRec is called when production LetRec is entered.
+func (s *BaseStellaParserListener) EnterLetRec(ctx *LetRecContext) {}
+
+// ExitLetRec is called when production LetRec is exited.
+func (s *BaseStellaParserListener) ExitLetRec(ctx *LetRecContext) {}
+
+// EnterLogicOr is called when production LogicOr is entered.
+func (s *BaseStellaParserListener) EnterLogicOr(ctx *LogicOrContext) {}
+
+// ExitLogicOr is called when production LogicOr is exited.
+func (s *BaseStellaParserListener) ExitLogicOr(ctx *LogicOrContext) {}
+
+// EnterTryWith is called when production TryWith is entered.
+func (s *BaseStellaParserListener) EnterTryWith(ctx *TryWithContext) {}
+
+// ExitTryWith is called when production TryWith is exited.
+func (s *BaseStellaParserListener) ExitTryWith(ctx *TryWithContext) {}
+
+// EnterPred is called when production Pred is entered.
+func (s *BaseStellaParserListener) EnterPred(ctx *PredContext) {}
+
+// ExitPred is called when production Pred is exited.
+func (s *BaseStellaParserListener) ExitPred(ctx *PredContext) {}
+
+// EnterTypeAsc is called when production TypeAsc is entered.
+func (s *BaseStellaParserListener) EnterTypeAsc(ctx *TypeAscContext) {}
+
+// ExitTypeAsc is called when production TypeAsc is exited.
+func (s *BaseStellaParserListener) ExitTypeAsc(ctx *TypeAscContext) {}
+
+// EnterNatRec is called when production NatRec is entered.
+func (s *BaseStellaParserListener) EnterNatRec(ctx *NatRecContext) {}
+
+// ExitNatRec is called when production NatRec is exited.
+func (s *BaseStellaParserListener) ExitNatRec(ctx *NatRecContext) {}
+
+// EnterUnfold is called when production Unfold is entered.
+func (s *BaseStellaParserListener) EnterUnfold(ctx *UnfoldContext) {}
+
+// ExitUnfold is called when production Unfold is exited.
+func (s *BaseStellaParserListener) ExitUnfold(ctx *UnfoldContext) {}
+
+// EnterRef is called when production Ref is entered.
+func (s *BaseStellaParserListener) EnterRef(ctx *RefContext) {}
+
+// ExitRef is called when production Ref is exited.
+func (s *BaseStellaParserListener) ExitRef(ctx *RefContext) {}
 
 // EnterDotTuple is called when production DotTuple is entered.
 func (s *BaseStellaParserListener) EnterDotTuple(ctx *DotTupleContext) {}
@@ -320,29 +417,17 @@ func (s *BaseStellaParserListener) EnterFix(ctx *FixContext) {}
 // ExitFix is called when production Fix is exited.
 func (s *BaseStellaParserListener) ExitFix(ctx *FixContext) {}
 
-// EnterSubtract is called when production Subtract is entered.
-func (s *BaseStellaParserListener) EnterSubtract(ctx *SubtractContext) {}
-
-// ExitSubtract is called when production Subtract is exited.
-func (s *BaseStellaParserListener) ExitSubtract(ctx *SubtractContext) {}
-
 // EnterLet is called when production Let is entered.
 func (s *BaseStellaParserListener) EnterLet(ctx *LetContext) {}
 
 // ExitLet is called when production Let is exited.
 func (s *BaseStellaParserListener) ExitLet(ctx *LetContext) {}
 
-// EnterIf is called when production If is entered.
-func (s *BaseStellaParserListener) EnterIf(ctx *IfContext) {}
+// EnterAssign is called when production Assign is entered.
+func (s *BaseStellaParserListener) EnterAssign(ctx *AssignContext) {}
 
-// ExitIf is called when production If is exited.
-func (s *BaseStellaParserListener) ExitIf(ctx *IfContext) {}
-
-// EnterApplication is called when production Application is entered.
-func (s *BaseStellaParserListener) EnterApplication(ctx *ApplicationContext) {}
-
-// ExitApplication is called when production Application is exited.
-func (s *BaseStellaParserListener) ExitApplication(ctx *ApplicationContext) {}
+// ExitAssign is called when production Assign is exited.
+func (s *BaseStellaParserListener) ExitAssign(ctx *AssignContext) {}
 
 // EnterTuple is called when production Tuple is entered.
 func (s *BaseStellaParserListener) EnterTuple(ctx *TupleContext) {}
@@ -368,11 +453,11 @@ func (s *BaseStellaParserListener) EnterBinding(ctx *BindingContext) {}
 // ExitBinding is called when production binding is exited.
 func (s *BaseStellaParserListener) ExitBinding(ctx *BindingContext) {}
 
-// EnterMatch_case is called when production match_case is entered.
-func (s *BaseStellaParserListener) EnterMatch_case(ctx *Match_caseContext) {}
+// EnterMatchCase is called when production matchCase is entered.
+func (s *BaseStellaParserListener) EnterMatchCase(ctx *MatchCaseContext) {}
 
-// ExitMatch_case is called when production match_case is exited.
-func (s *BaseStellaParserListener) ExitMatch_case(ctx *Match_caseContext) {}
+// ExitMatchCase is called when production matchCase is exited.
+func (s *BaseStellaParserListener) ExitMatchCase(ctx *MatchCaseContext) {}
 
 // EnterPatternVariant is called when production PatternVariant is entered.
 func (s *BaseStellaParserListener) EnterPatternVariant(ctx *PatternVariantContext) {}
@@ -470,6 +555,36 @@ func (s *BaseStellaParserListener) EnterTypeTuple(ctx *TypeTupleContext) {}
 // ExitTypeTuple is called when production TypeTuple is exited.
 func (s *BaseStellaParserListener) ExitTypeTuple(ctx *TypeTupleContext) {}
 
+// EnterTypeTop is called when production TypeTop is entered.
+func (s *BaseStellaParserListener) EnterTypeTop(ctx *TypeTopContext) {}
+
+// ExitTypeTop is called when production TypeTop is exited.
+func (s *BaseStellaParserListener) ExitTypeTop(ctx *TypeTopContext) {}
+
+// EnterTypeBool is called when production TypeBool is entered.
+func (s *BaseStellaParserListener) EnterTypeBool(ctx *TypeBoolContext) {}
+
+// ExitTypeBool is called when production TypeBool is exited.
+func (s *BaseStellaParserListener) ExitTypeBool(ctx *TypeBoolContext) {}
+
+// EnterTypeRef is called when production TypeRef is entered.
+func (s *BaseStellaParserListener) EnterTypeRef(ctx *TypeRefContext) {}
+
+// ExitTypeRef is called when production TypeRef is exited.
+func (s *BaseStellaParserListener) ExitTypeRef(ctx *TypeRefContext) {}
+
+// EnterTypeRec is called when production TypeRec is entered.
+func (s *BaseStellaParserListener) EnterTypeRec(ctx *TypeRecContext) {}
+
+// ExitTypeRec is called when production TypeRec is exited.
+func (s *BaseStellaParserListener) ExitTypeRec(ctx *TypeRecContext) {}
+
+// EnterTypeSum is called when production TypeSum is entered.
+func (s *BaseStellaParserListener) EnterTypeSum(ctx *TypeSumContext) {}
+
+// ExitTypeSum is called when production TypeSum is exited.
+func (s *BaseStellaParserListener) ExitTypeSum(ctx *TypeSumContext) {}
+
 // EnterTypeVar is called when production TypeVar is entered.
 func (s *BaseStellaParserListener) EnterTypeVar(ctx *TypeVarContext) {}
 
@@ -488,23 +603,17 @@ func (s *BaseStellaParserListener) EnterTypeUnit(ctx *TypeUnitContext) {}
 // ExitTypeUnit is called when production TypeUnit is exited.
 func (s *BaseStellaParserListener) ExitTypeUnit(ctx *TypeUnitContext) {}
 
-// EnterTypeBool is called when production TypeBool is entered.
-func (s *BaseStellaParserListener) EnterTypeBool(ctx *TypeBoolContext) {}
-
-// ExitTypeBool is called when production TypeBool is exited.
-func (s *BaseStellaParserListener) ExitTypeBool(ctx *TypeBoolContext) {}
-
 // EnterTypeNat is called when production TypeNat is entered.
 func (s *BaseStellaParserListener) EnterTypeNat(ctx *TypeNatContext) {}
 
 // ExitTypeNat is called when production TypeNat is exited.
 func (s *BaseStellaParserListener) ExitTypeNat(ctx *TypeNatContext) {}
 
-// EnterTypeRec is called when production TypeRec is entered.
-func (s *BaseStellaParserListener) EnterTypeRec(ctx *TypeRecContext) {}
+// EnterTypeBottom is called when production TypeBottom is entered.
+func (s *BaseStellaParserListener) EnterTypeBottom(ctx *TypeBottomContext) {}
 
-// ExitTypeRec is called when production TypeRec is exited.
-func (s *BaseStellaParserListener) ExitTypeRec(ctx *TypeRecContext) {}
+// ExitTypeBottom is called when production TypeBottom is exited.
+func (s *BaseStellaParserListener) ExitTypeBottom(ctx *TypeBottomContext) {}
 
 // EnterTypeParens is called when production TypeParens is entered.
 func (s *BaseStellaParserListener) EnterTypeParens(ctx *TypeParensContext) {}
@@ -518,6 +627,12 @@ func (s *BaseStellaParserListener) EnterTypeFun(ctx *TypeFunContext) {}
 // ExitTypeFun is called when production TypeFun is exited.
 func (s *BaseStellaParserListener) ExitTypeFun(ctx *TypeFunContext) {}
 
+// EnterTypeForAll is called when production TypeForAll is entered.
+func (s *BaseStellaParserListener) EnterTypeForAll(ctx *TypeForAllContext) {}
+
+// ExitTypeForAll is called when production TypeForAll is exited.
+func (s *BaseStellaParserListener) ExitTypeForAll(ctx *TypeForAllContext) {}
+
 // EnterTypeRecord is called when production TypeRecord is entered.
 func (s *BaseStellaParserListener) EnterTypeRecord(ctx *TypeRecordContext) {}
 
@@ -529,12 +644,6 @@ func (s *BaseStellaParserListener) EnterTypeList(ctx *TypeListContext) {}
 
 // ExitTypeList is called when production TypeList is exited.
 func (s *BaseStellaParserListener) ExitTypeList(ctx *TypeListContext) {}
-
-// EnterTypeSum is called when production TypeSum is entered.
-func (s *BaseStellaParserListener) EnterTypeSum(ctx *TypeSumContext) {}
-
-// ExitTypeSum is called when production TypeSum is exited.
-func (s *BaseStellaParserListener) ExitTypeSum(ctx *TypeSumContext) {}
 
 // EnterRecordFieldType is called when production recordFieldType is entered.
 func (s *BaseStellaParserListener) EnterRecordFieldType(ctx *RecordFieldTypeContext) {}
