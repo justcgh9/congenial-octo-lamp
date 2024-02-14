@@ -95,6 +95,9 @@ type StellaParserListener interface {
 	// EnterHead is called when entering the Head production.
 	EnterHead(c *HeadContext)
 
+	// EnterTerminatingSemicolon is called when entering the TerminatingSemicolon production.
+	EnterTerminatingSemicolon(c *TerminatingSemicolonContext)
+
 	// EnterNotEqual is called when entering the NotEqual production.
 	EnterNotEqual(c *NotEqualContext)
 
@@ -412,6 +415,9 @@ type StellaParserListener interface {
 
 	// ExitHead is called when exiting the Head production.
 	ExitHead(c *HeadContext)
+
+	// ExitTerminatingSemicolon is called when exiting the TerminatingSemicolon production.
+	ExitTerminatingSemicolon(c *TerminatingSemicolonContext)
 
 	// ExitNotEqual is called when exiting the NotEqual production.
 	ExitNotEqual(c *NotEqualContext)

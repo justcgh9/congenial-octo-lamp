@@ -124,6 +124,10 @@ func (v *BaseStellaParserVisitor) VisitHead(ctx *HeadContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseStellaParserVisitor) VisitTerminatingSemicolon(ctx *TerminatingSemicolonContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseStellaParserVisitor) VisitNotEqual(ctx *NotEqualContext) interface{} {
 	return v.VisitChildren(ctx)
 }

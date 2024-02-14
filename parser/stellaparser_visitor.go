@@ -94,6 +94,9 @@ type StellaParserVisitor interface {
 	// Visit a parse tree produced by StellaParser#Head.
 	VisitHead(ctx *HeadContext) interface{}
 
+	// Visit a parse tree produced by StellaParser#TerminatingSemicolon.
+	VisitTerminatingSemicolon(ctx *TerminatingSemicolonContext) interface{}
+
 	// Visit a parse tree produced by StellaParser#NotEqual.
 	VisitNotEqual(ctx *NotEqualContext) interface{}
 

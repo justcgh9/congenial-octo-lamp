@@ -195,6 +195,12 @@ func (s *BaseStellaParserListener) EnterHead(ctx *HeadContext) {}
 // ExitHead is called when production Head is exited.
 func (s *BaseStellaParserListener) ExitHead(ctx *HeadContext) {}
 
+// EnterTerminatingSemicolon is called when production TerminatingSemicolon is entered.
+func (s *BaseStellaParserListener) EnterTerminatingSemicolon(ctx *TerminatingSemicolonContext) {}
+
+// ExitTerminatingSemicolon is called when production TerminatingSemicolon is exited.
+func (s *BaseStellaParserListener) ExitTerminatingSemicolon(ctx *TerminatingSemicolonContext) {}
+
 // EnterNotEqual is called when production NotEqual is entered.
 func (s *BaseStellaParserListener) EnterNotEqual(ctx *NotEqualContext) {}
 

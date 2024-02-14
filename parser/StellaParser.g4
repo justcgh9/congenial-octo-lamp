@@ -103,7 +103,8 @@ expr:
     | 'letrec' patternBindings+=patternBinding (',' patternBindings+=patternBinding)* 'in' body = expr           # LetRec
     | 'generic' '[' generics += StellaIdent (',' generics += StellaIdent)* ']' expr_ = expr                           # TypeAbstraction
     | '(' expr_ = expr ')'                                                        # ParenthesisedExpr
-    | expr1 = expr ';' (expr2 = expr)? # Sequence
+    | expr1 = expr ';' expr2 = expr # Sequence
+    | expr_ = expr ';' # TerminatingSemicolon
     ;
 
 patternBinding: pat=pattern '=' rhs=expr ;
@@ -137,12 +138,13 @@ labelledPattern: label = StellaIdent '=' pattern_ = pattern;
 stellatype:
     'Bool'  # TypeBool
     | 'Nat' # TypeNat
+    | '&' type_=stellatype                                     # TypeRef
+    | left = stellatype '+' right = stellatype                 # TypeSum
     | 'fn' '(' (
         paramTypes += stellatype (',' paramTypes += stellatype)*
     )? ')' '->' returnType = stellatype                        # TypeFun
     | 'forall' (types += StellaIdent)* '.' type_ = stellatype          # TypeForAll
     | 'µ' var = StellaIdent '.' type_ = stellatype             # TypeRec
-    | left = stellatype '+' right = stellatype                 # TypeSum
     | '{' (types += stellatype (',' types += stellatype)*)? '}' # TypeTuple
     | '{'
         fieldTypes += recordFieldType (
@@ -157,7 +159,6 @@ stellatype:
     | '[' type_ = stellatype ']' # TypeList
     | 'Unit'                                                    # TypeUnit
     | 'Top'                                                     # TypeTop
-    | '&' type_=stellatype                                      # TypeRef
     | 'Bot'                                                     # TypeBottom
     | name = StellaIdent                                        # TypeVar
     | '(' type_ = stellatype ')' # TypeParens;
