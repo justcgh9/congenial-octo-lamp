@@ -280,16 +280,16 @@ func stellaparserParserInit() {
 	396, 5, 52, 0, 0, 396, 401, 3, 20, 10, 0, 397, 398, 5, 1, 0, 0, 398, 400, 
 	3, 20, 10, 0, 399, 397, 1, 0, 0, 0, 400, 403, 1, 0, 0, 0, 401, 399, 1, 
 	0, 0, 0, 401, 402, 1, 0, 0, 0, 402, 404, 1, 0, 0, 0, 403, 401, 1, 0, 0, 
-	0, 404, 405, 5, 47, 0, 0, 405, 406, 3, 18, 9, 6, 406, 436, 1, 0, 0, 0, 
+	0, 404, 405, 5, 47, 0, 0, 405, 406, 3, 18, 9, 5, 406, 436, 1, 0, 0, 0, 
 	407, 408, 5, 53, 0, 0, 408, 413, 3, 20, 10, 0, 409, 410, 5, 1, 0, 0, 410, 
 	412, 3, 20, 10, 0, 411, 409, 1, 0, 0, 0, 412, 415, 1, 0, 0, 0, 413, 411, 
 	1, 0, 0, 0, 413, 414, 1, 0, 0, 0, 414, 416, 1, 0, 0, 0, 415, 413, 1, 0, 
-	0, 0, 416, 417, 5, 47, 0, 0, 417, 418, 3, 18, 9, 5, 418, 436, 1, 0, 0, 
+	0, 0, 416, 417, 5, 47, 0, 0, 417, 418, 3, 18, 9, 4, 418, 436, 1, 0, 0, 
 	0, 419, 420, 5, 79, 0, 0, 420, 421, 5, 14, 0, 0, 421, 426, 5, 83, 0, 0, 
 	422, 423, 5, 1, 0, 0, 423, 425, 5, 83, 0, 0, 424, 422, 1, 0, 0, 0, 425, 
 	428, 1, 0, 0, 0, 426, 424, 1, 0, 0, 0, 426, 427, 1, 0, 0, 0, 427, 429, 
 	1, 0, 0, 0, 428, 426, 1, 0, 0, 0, 429, 430, 5, 15, 0, 0, 430, 436, 3, 18, 
-	9, 4, 431, 432, 5, 3, 0, 0, 432, 433, 3, 18, 9, 0, 433, 434, 5, 4, 0, 0, 
+	9, 3, 431, 432, 5, 3, 0, 0, 432, 433, 3, 18, 9, 0, 433, 434, 5, 4, 0, 0, 
 	434, 436, 1, 0, 0, 0, 435, 198, 1, 0, 0, 0, 435, 200, 1, 0, 0, 0, 435, 
 	201, 1, 0, 0, 0, 435, 202, 1, 0, 0, 0, 435, 203, 1, 0, 0, 0, 435, 204, 
 	1, 0, 0, 0, 435, 205, 1, 0, 0, 0, 435, 206, 1, 0, 0, 0, 435, 211, 1, 0, 
@@ -315,7 +315,7 @@ func stellaparserParserInit() {
 	467, 468, 10, 10, 0, 0, 468, 469, 5, 20, 0, 0, 469, 520, 3, 18, 9, 11, 
 	470, 471, 10, 9, 0, 0, 471, 472, 5, 21, 0, 0, 472, 520, 3, 18, 9, 10, 473, 
 	474, 10, 8, 0, 0, 474, 475, 5, 70, 0, 0, 475, 520, 3, 18, 9, 9, 476, 477, 
-	10, 2, 0, 0, 477, 478, 5, 2, 0, 0, 478, 520, 3, 18, 9, 3, 479, 480, 10, 
+	10, 6, 0, 0, 477, 478, 5, 2, 0, 0, 478, 520, 3, 18, 9, 7, 479, 480, 10, 
 	58, 0, 0, 480, 481, 5, 26, 0, 0, 481, 520, 5, 83, 0, 0, 482, 483, 10, 57, 
 	0, 0, 483, 484, 5, 26, 0, 0, 484, 520, 5, 86, 0, 0, 485, 486, 10, 32, 0, 
 	0, 486, 495, 5, 3, 0, 0, 487, 492, 3, 18, 9, 0, 488, 489, 5, 1, 0, 0, 489, 
@@ -10042,7 +10042,7 @@ func (p *StellaParser) expr(_p int) (localctx IExprContext) {
 		{
 			p.SetState(405)
 
-			var _x = p.expr(6)
+			var _x = p.expr(5)
 
 			localctx.(*LetContext).body = _x
 		}
@@ -10097,7 +10097,7 @@ func (p *StellaParser) expr(_p int) (localctx IExprContext) {
 		{
 			p.SetState(417)
 
-			var _x = p.expr(5)
+			var _x = p.expr(4)
 
 			localctx.(*LetRecContext).body = _x
 		}
@@ -10154,7 +10154,7 @@ func (p *StellaParser) expr(_p int) (localctx IExprContext) {
 		{
 			p.SetState(430)
 
-			var _x = p.expr(4)
+			var _x = p.expr(3)
 
 			localctx.(*TypeAbstractionContext).expr_ = _x
 		}
@@ -10515,8 +10515,8 @@ func (p *StellaParser) expr(_p int) (localctx IExprContext) {
 				p.PushNewRecursionContext(localctx, _startState, StellaParserRULE_expr)
 				p.SetState(476)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 2)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 2)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 6)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 6)", ""))
 				}
 				{
 					p.SetState(477)
@@ -10525,7 +10525,7 @@ func (p *StellaParser) expr(_p int) (localctx IExprContext) {
 				{
 					p.SetState(478)
 
-					var _x = p.expr(3)
+					var _x = p.expr(7)
 
 					localctx.(*SequenceContext).expr2 = _x
 				}
@@ -15311,7 +15311,7 @@ func (p *StellaParser) Expr_Sempred(localctx antlr.RuleContext, predIndex int) b
 			return p.Precpred(p.GetParserRuleContext(), 8)
 
 	case 13:
-			return p.Precpred(p.GetParserRuleContext(), 2)
+			return p.Precpred(p.GetParserRuleContext(), 6)
 
 	case 14:
 			return p.Precpred(p.GetParserRuleContext(), 58)
