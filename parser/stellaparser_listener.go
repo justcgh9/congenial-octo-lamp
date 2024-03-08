@@ -92,6 +92,9 @@ type StellaParserListener interface {
 	// EnterTryCatch is called when entering the TryCatch production.
 	EnterTryCatch(c *TryCatchContext)
 
+	// EnterTryCastAs is called when entering the TryCastAs production.
+	EnterTryCastAs(c *TryCastAsContext)
+
 	// EnterHead is called when entering the Head production.
 	EnterHead(c *HeadContext)
 
@@ -230,47 +233,53 @@ type StellaParserListener interface {
 	// EnterMatchCase is called when entering the matchCase production.
 	EnterMatchCase(c *MatchCaseContext)
 
-	// EnterPatternVariant is called when entering the PatternVariant production.
-	EnterPatternVariant(c *PatternVariantContext)
-
-	// EnterPatternInl is called when entering the PatternInl production.
-	EnterPatternInl(c *PatternInlContext)
-
-	// EnterPatternInr is called when entering the PatternInr production.
-	EnterPatternInr(c *PatternInrContext)
+	// EnterPatternCons is called when entering the PatternCons production.
+	EnterPatternCons(c *PatternConsContext)
 
 	// EnterPatternTuple is called when entering the PatternTuple production.
 	EnterPatternTuple(c *PatternTupleContext)
 
-	// EnterPatternRecord is called when entering the PatternRecord production.
-	EnterPatternRecord(c *PatternRecordContext)
-
 	// EnterPatternList is called when entering the PatternList production.
 	EnterPatternList(c *PatternListContext)
 
-	// EnterPatternCons is called when entering the PatternCons production.
-	EnterPatternCons(c *PatternConsContext)
+	// EnterPatternRecord is called when entering the PatternRecord production.
+	EnterPatternRecord(c *PatternRecordContext)
 
-	// EnterPatternFalse is called when entering the PatternFalse production.
-	EnterPatternFalse(c *PatternFalseContext)
+	// EnterPatternVariant is called when entering the PatternVariant production.
+	EnterPatternVariant(c *PatternVariantContext)
 
-	// EnterPatternTrue is called when entering the PatternTrue production.
-	EnterPatternTrue(c *PatternTrueContext)
-
-	// EnterPatternUnit is called when entering the PatternUnit production.
-	EnterPatternUnit(c *PatternUnitContext)
+	// EnterPatternAsc is called when entering the PatternAsc production.
+	EnterPatternAsc(c *PatternAscContext)
 
 	// EnterPatternInt is called when entering the PatternInt production.
 	EnterPatternInt(c *PatternIntContext)
 
-	// EnterPatternSucc is called when entering the PatternSucc production.
-	EnterPatternSucc(c *PatternSuccContext)
+	// EnterPatternInr is called when entering the PatternInr production.
+	EnterPatternInr(c *PatternInrContext)
+
+	// EnterPatternTrue is called when entering the PatternTrue production.
+	EnterPatternTrue(c *PatternTrueContext)
+
+	// EnterPatternInl is called when entering the PatternInl production.
+	EnterPatternInl(c *PatternInlContext)
 
 	// EnterPatternVar is called when entering the PatternVar production.
 	EnterPatternVar(c *PatternVarContext)
 
 	// EnterParenthesisedPattern is called when entering the ParenthesisedPattern production.
 	EnterParenthesisedPattern(c *ParenthesisedPatternContext)
+
+	// EnterPatternSucc is called when entering the PatternSucc production.
+	EnterPatternSucc(c *PatternSuccContext)
+
+	// EnterPatternFalse is called when entering the PatternFalse production.
+	EnterPatternFalse(c *PatternFalseContext)
+
+	// EnterPatternUnit is called when entering the PatternUnit production.
+	EnterPatternUnit(c *PatternUnitContext)
+
+	// EnterPatternCastAs is called when entering the PatternCastAs production.
+	EnterPatternCastAs(c *PatternCastAsContext)
 
 	// EnterLabelledPattern is called when entering the labelledPattern production.
 	EnterLabelledPattern(c *LabelledPatternContext)
@@ -413,6 +422,9 @@ type StellaParserListener interface {
 	// ExitTryCatch is called when exiting the TryCatch production.
 	ExitTryCatch(c *TryCatchContext)
 
+	// ExitTryCastAs is called when exiting the TryCastAs production.
+	ExitTryCastAs(c *TryCastAsContext)
+
 	// ExitHead is called when exiting the Head production.
 	ExitHead(c *HeadContext)
 
@@ -551,47 +563,53 @@ type StellaParserListener interface {
 	// ExitMatchCase is called when exiting the matchCase production.
 	ExitMatchCase(c *MatchCaseContext)
 
-	// ExitPatternVariant is called when exiting the PatternVariant production.
-	ExitPatternVariant(c *PatternVariantContext)
-
-	// ExitPatternInl is called when exiting the PatternInl production.
-	ExitPatternInl(c *PatternInlContext)
-
-	// ExitPatternInr is called when exiting the PatternInr production.
-	ExitPatternInr(c *PatternInrContext)
+	// ExitPatternCons is called when exiting the PatternCons production.
+	ExitPatternCons(c *PatternConsContext)
 
 	// ExitPatternTuple is called when exiting the PatternTuple production.
 	ExitPatternTuple(c *PatternTupleContext)
 
-	// ExitPatternRecord is called when exiting the PatternRecord production.
-	ExitPatternRecord(c *PatternRecordContext)
-
 	// ExitPatternList is called when exiting the PatternList production.
 	ExitPatternList(c *PatternListContext)
 
-	// ExitPatternCons is called when exiting the PatternCons production.
-	ExitPatternCons(c *PatternConsContext)
+	// ExitPatternRecord is called when exiting the PatternRecord production.
+	ExitPatternRecord(c *PatternRecordContext)
 
-	// ExitPatternFalse is called when exiting the PatternFalse production.
-	ExitPatternFalse(c *PatternFalseContext)
+	// ExitPatternVariant is called when exiting the PatternVariant production.
+	ExitPatternVariant(c *PatternVariantContext)
 
-	// ExitPatternTrue is called when exiting the PatternTrue production.
-	ExitPatternTrue(c *PatternTrueContext)
-
-	// ExitPatternUnit is called when exiting the PatternUnit production.
-	ExitPatternUnit(c *PatternUnitContext)
+	// ExitPatternAsc is called when exiting the PatternAsc production.
+	ExitPatternAsc(c *PatternAscContext)
 
 	// ExitPatternInt is called when exiting the PatternInt production.
 	ExitPatternInt(c *PatternIntContext)
 
-	// ExitPatternSucc is called when exiting the PatternSucc production.
-	ExitPatternSucc(c *PatternSuccContext)
+	// ExitPatternInr is called when exiting the PatternInr production.
+	ExitPatternInr(c *PatternInrContext)
+
+	// ExitPatternTrue is called when exiting the PatternTrue production.
+	ExitPatternTrue(c *PatternTrueContext)
+
+	// ExitPatternInl is called when exiting the PatternInl production.
+	ExitPatternInl(c *PatternInlContext)
 
 	// ExitPatternVar is called when exiting the PatternVar production.
 	ExitPatternVar(c *PatternVarContext)
 
 	// ExitParenthesisedPattern is called when exiting the ParenthesisedPattern production.
 	ExitParenthesisedPattern(c *ParenthesisedPatternContext)
+
+	// ExitPatternSucc is called when exiting the PatternSucc production.
+	ExitPatternSucc(c *PatternSuccContext)
+
+	// ExitPatternFalse is called when exiting the PatternFalse production.
+	ExitPatternFalse(c *PatternFalseContext)
+
+	// ExitPatternUnit is called when exiting the PatternUnit production.
+	ExitPatternUnit(c *PatternUnitContext)
+
+	// ExitPatternCastAs is called when exiting the PatternCastAs production.
+	ExitPatternCastAs(c *PatternCastAsContext)
 
 	// ExitLabelledPattern is called when exiting the labelledPattern production.
 	ExitLabelledPattern(c *LabelledPatternContext)

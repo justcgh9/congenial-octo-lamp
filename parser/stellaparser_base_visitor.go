@@ -120,6 +120,10 @@ func (v *BaseStellaParserVisitor) VisitTryCatch(ctx *TryCatchContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseStellaParserVisitor) VisitTryCastAs(ctx *TryCastAsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseStellaParserVisitor) VisitHead(ctx *HeadContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -304,15 +308,7 @@ func (v *BaseStellaParserVisitor) VisitMatchCase(ctx *MatchCaseContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseStellaParserVisitor) VisitPatternVariant(ctx *PatternVariantContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseStellaParserVisitor) VisitPatternInl(ctx *PatternInlContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseStellaParserVisitor) VisitPatternInr(ctx *PatternInrContext) interface{} {
+func (v *BaseStellaParserVisitor) VisitPatternCons(ctx *PatternConsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -320,27 +316,19 @@ func (v *BaseStellaParserVisitor) VisitPatternTuple(ctx *PatternTupleContext) in
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseStellaParserVisitor) VisitPatternRecord(ctx *PatternRecordContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseStellaParserVisitor) VisitPatternList(ctx *PatternListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseStellaParserVisitor) VisitPatternCons(ctx *PatternConsContext) interface{} {
+func (v *BaseStellaParserVisitor) VisitPatternRecord(ctx *PatternRecordContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseStellaParserVisitor) VisitPatternFalse(ctx *PatternFalseContext) interface{} {
+func (v *BaseStellaParserVisitor) VisitPatternVariant(ctx *PatternVariantContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseStellaParserVisitor) VisitPatternTrue(ctx *PatternTrueContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseStellaParserVisitor) VisitPatternUnit(ctx *PatternUnitContext) interface{} {
+func (v *BaseStellaParserVisitor) VisitPatternAsc(ctx *PatternAscContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -348,7 +336,15 @@ func (v *BaseStellaParserVisitor) VisitPatternInt(ctx *PatternIntContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseStellaParserVisitor) VisitPatternSucc(ctx *PatternSuccContext) interface{} {
+func (v *BaseStellaParserVisitor) VisitPatternInr(ctx *PatternInrContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseStellaParserVisitor) VisitPatternTrue(ctx *PatternTrueContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseStellaParserVisitor) VisitPatternInl(ctx *PatternInlContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -357,6 +353,22 @@ func (v *BaseStellaParserVisitor) VisitPatternVar(ctx *PatternVarContext) interf
 }
 
 func (v *BaseStellaParserVisitor) VisitParenthesisedPattern(ctx *ParenthesisedPatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseStellaParserVisitor) VisitPatternSucc(ctx *PatternSuccContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseStellaParserVisitor) VisitPatternFalse(ctx *PatternFalseContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseStellaParserVisitor) VisitPatternUnit(ctx *PatternUnitContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseStellaParserVisitor) VisitPatternCastAs(ctx *PatternCastAsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

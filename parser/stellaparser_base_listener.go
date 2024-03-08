@@ -189,6 +189,12 @@ func (s *BaseStellaParserListener) EnterTryCatch(ctx *TryCatchContext) {}
 // ExitTryCatch is called when production TryCatch is exited.
 func (s *BaseStellaParserListener) ExitTryCatch(ctx *TryCatchContext) {}
 
+// EnterTryCastAs is called when production TryCastAs is entered.
+func (s *BaseStellaParserListener) EnterTryCastAs(ctx *TryCastAsContext) {}
+
+// ExitTryCastAs is called when production TryCastAs is exited.
+func (s *BaseStellaParserListener) ExitTryCastAs(ctx *TryCastAsContext) {}
+
 // EnterHead is called when production Head is entered.
 func (s *BaseStellaParserListener) EnterHead(ctx *HeadContext) {}
 
@@ -465,23 +471,11 @@ func (s *BaseStellaParserListener) EnterMatchCase(ctx *MatchCaseContext) {}
 // ExitMatchCase is called when production matchCase is exited.
 func (s *BaseStellaParserListener) ExitMatchCase(ctx *MatchCaseContext) {}
 
-// EnterPatternVariant is called when production PatternVariant is entered.
-func (s *BaseStellaParserListener) EnterPatternVariant(ctx *PatternVariantContext) {}
+// EnterPatternCons is called when production PatternCons is entered.
+func (s *BaseStellaParserListener) EnterPatternCons(ctx *PatternConsContext) {}
 
-// ExitPatternVariant is called when production PatternVariant is exited.
-func (s *BaseStellaParserListener) ExitPatternVariant(ctx *PatternVariantContext) {}
-
-// EnterPatternInl is called when production PatternInl is entered.
-func (s *BaseStellaParserListener) EnterPatternInl(ctx *PatternInlContext) {}
-
-// ExitPatternInl is called when production PatternInl is exited.
-func (s *BaseStellaParserListener) ExitPatternInl(ctx *PatternInlContext) {}
-
-// EnterPatternInr is called when production PatternInr is entered.
-func (s *BaseStellaParserListener) EnterPatternInr(ctx *PatternInrContext) {}
-
-// ExitPatternInr is called when production PatternInr is exited.
-func (s *BaseStellaParserListener) ExitPatternInr(ctx *PatternInrContext) {}
+// ExitPatternCons is called when production PatternCons is exited.
+func (s *BaseStellaParserListener) ExitPatternCons(ctx *PatternConsContext) {}
 
 // EnterPatternTuple is called when production PatternTuple is entered.
 func (s *BaseStellaParserListener) EnterPatternTuple(ctx *PatternTupleContext) {}
@@ -489,41 +483,29 @@ func (s *BaseStellaParserListener) EnterPatternTuple(ctx *PatternTupleContext) {
 // ExitPatternTuple is called when production PatternTuple is exited.
 func (s *BaseStellaParserListener) ExitPatternTuple(ctx *PatternTupleContext) {}
 
-// EnterPatternRecord is called when production PatternRecord is entered.
-func (s *BaseStellaParserListener) EnterPatternRecord(ctx *PatternRecordContext) {}
-
-// ExitPatternRecord is called when production PatternRecord is exited.
-func (s *BaseStellaParserListener) ExitPatternRecord(ctx *PatternRecordContext) {}
-
 // EnterPatternList is called when production PatternList is entered.
 func (s *BaseStellaParserListener) EnterPatternList(ctx *PatternListContext) {}
 
 // ExitPatternList is called when production PatternList is exited.
 func (s *BaseStellaParserListener) ExitPatternList(ctx *PatternListContext) {}
 
-// EnterPatternCons is called when production PatternCons is entered.
-func (s *BaseStellaParserListener) EnterPatternCons(ctx *PatternConsContext) {}
+// EnterPatternRecord is called when production PatternRecord is entered.
+func (s *BaseStellaParserListener) EnterPatternRecord(ctx *PatternRecordContext) {}
 
-// ExitPatternCons is called when production PatternCons is exited.
-func (s *BaseStellaParserListener) ExitPatternCons(ctx *PatternConsContext) {}
+// ExitPatternRecord is called when production PatternRecord is exited.
+func (s *BaseStellaParserListener) ExitPatternRecord(ctx *PatternRecordContext) {}
 
-// EnterPatternFalse is called when production PatternFalse is entered.
-func (s *BaseStellaParserListener) EnterPatternFalse(ctx *PatternFalseContext) {}
+// EnterPatternVariant is called when production PatternVariant is entered.
+func (s *BaseStellaParserListener) EnterPatternVariant(ctx *PatternVariantContext) {}
 
-// ExitPatternFalse is called when production PatternFalse is exited.
-func (s *BaseStellaParserListener) ExitPatternFalse(ctx *PatternFalseContext) {}
+// ExitPatternVariant is called when production PatternVariant is exited.
+func (s *BaseStellaParserListener) ExitPatternVariant(ctx *PatternVariantContext) {}
 
-// EnterPatternTrue is called when production PatternTrue is entered.
-func (s *BaseStellaParserListener) EnterPatternTrue(ctx *PatternTrueContext) {}
+// EnterPatternAsc is called when production PatternAsc is entered.
+func (s *BaseStellaParserListener) EnterPatternAsc(ctx *PatternAscContext) {}
 
-// ExitPatternTrue is called when production PatternTrue is exited.
-func (s *BaseStellaParserListener) ExitPatternTrue(ctx *PatternTrueContext) {}
-
-// EnterPatternUnit is called when production PatternUnit is entered.
-func (s *BaseStellaParserListener) EnterPatternUnit(ctx *PatternUnitContext) {}
-
-// ExitPatternUnit is called when production PatternUnit is exited.
-func (s *BaseStellaParserListener) ExitPatternUnit(ctx *PatternUnitContext) {}
+// ExitPatternAsc is called when production PatternAsc is exited.
+func (s *BaseStellaParserListener) ExitPatternAsc(ctx *PatternAscContext) {}
 
 // EnterPatternInt is called when production PatternInt is entered.
 func (s *BaseStellaParserListener) EnterPatternInt(ctx *PatternIntContext) {}
@@ -531,11 +513,23 @@ func (s *BaseStellaParserListener) EnterPatternInt(ctx *PatternIntContext) {}
 // ExitPatternInt is called when production PatternInt is exited.
 func (s *BaseStellaParserListener) ExitPatternInt(ctx *PatternIntContext) {}
 
-// EnterPatternSucc is called when production PatternSucc is entered.
-func (s *BaseStellaParserListener) EnterPatternSucc(ctx *PatternSuccContext) {}
+// EnterPatternInr is called when production PatternInr is entered.
+func (s *BaseStellaParserListener) EnterPatternInr(ctx *PatternInrContext) {}
 
-// ExitPatternSucc is called when production PatternSucc is exited.
-func (s *BaseStellaParserListener) ExitPatternSucc(ctx *PatternSuccContext) {}
+// ExitPatternInr is called when production PatternInr is exited.
+func (s *BaseStellaParserListener) ExitPatternInr(ctx *PatternInrContext) {}
+
+// EnterPatternTrue is called when production PatternTrue is entered.
+func (s *BaseStellaParserListener) EnterPatternTrue(ctx *PatternTrueContext) {}
+
+// ExitPatternTrue is called when production PatternTrue is exited.
+func (s *BaseStellaParserListener) ExitPatternTrue(ctx *PatternTrueContext) {}
+
+// EnterPatternInl is called when production PatternInl is entered.
+func (s *BaseStellaParserListener) EnterPatternInl(ctx *PatternInlContext) {}
+
+// ExitPatternInl is called when production PatternInl is exited.
+func (s *BaseStellaParserListener) ExitPatternInl(ctx *PatternInlContext) {}
 
 // EnterPatternVar is called when production PatternVar is entered.
 func (s *BaseStellaParserListener) EnterPatternVar(ctx *PatternVarContext) {}
@@ -548,6 +542,30 @@ func (s *BaseStellaParserListener) EnterParenthesisedPattern(ctx *ParenthesisedP
 
 // ExitParenthesisedPattern is called when production ParenthesisedPattern is exited.
 func (s *BaseStellaParserListener) ExitParenthesisedPattern(ctx *ParenthesisedPatternContext) {}
+
+// EnterPatternSucc is called when production PatternSucc is entered.
+func (s *BaseStellaParserListener) EnterPatternSucc(ctx *PatternSuccContext) {}
+
+// ExitPatternSucc is called when production PatternSucc is exited.
+func (s *BaseStellaParserListener) ExitPatternSucc(ctx *PatternSuccContext) {}
+
+// EnterPatternFalse is called when production PatternFalse is entered.
+func (s *BaseStellaParserListener) EnterPatternFalse(ctx *PatternFalseContext) {}
+
+// ExitPatternFalse is called when production PatternFalse is exited.
+func (s *BaseStellaParserListener) ExitPatternFalse(ctx *PatternFalseContext) {}
+
+// EnterPatternUnit is called when production PatternUnit is entered.
+func (s *BaseStellaParserListener) EnterPatternUnit(ctx *PatternUnitContext) {}
+
+// ExitPatternUnit is called when production PatternUnit is exited.
+func (s *BaseStellaParserListener) ExitPatternUnit(ctx *PatternUnitContext) {}
+
+// EnterPatternCastAs is called when production PatternCastAs is entered.
+func (s *BaseStellaParserListener) EnterPatternCastAs(ctx *PatternCastAsContext) {}
+
+// ExitPatternCastAs is called when production PatternCastAs is exited.
+func (s *BaseStellaParserListener) ExitPatternCastAs(ctx *PatternCastAsContext) {}
 
 // EnterLabelledPattern is called when production labelledPattern is entered.
 func (s *BaseStellaParserListener) EnterLabelledPattern(ctx *LabelledPatternContext) {}

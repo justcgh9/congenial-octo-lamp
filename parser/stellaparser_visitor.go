@@ -91,6 +91,9 @@ type StellaParserVisitor interface {
 	// Visit a parse tree produced by StellaParser#TryCatch.
 	VisitTryCatch(ctx *TryCatchContext) interface{}
 
+	// Visit a parse tree produced by StellaParser#TryCastAs.
+	VisitTryCastAs(ctx *TryCastAsContext) interface{}
+
 	// Visit a parse tree produced by StellaParser#Head.
 	VisitHead(ctx *HeadContext) interface{}
 
@@ -229,47 +232,53 @@ type StellaParserVisitor interface {
 	// Visit a parse tree produced by StellaParser#matchCase.
 	VisitMatchCase(ctx *MatchCaseContext) interface{}
 
-	// Visit a parse tree produced by StellaParser#PatternVariant.
-	VisitPatternVariant(ctx *PatternVariantContext) interface{}
-
-	// Visit a parse tree produced by StellaParser#PatternInl.
-	VisitPatternInl(ctx *PatternInlContext) interface{}
-
-	// Visit a parse tree produced by StellaParser#PatternInr.
-	VisitPatternInr(ctx *PatternInrContext) interface{}
+	// Visit a parse tree produced by StellaParser#PatternCons.
+	VisitPatternCons(ctx *PatternConsContext) interface{}
 
 	// Visit a parse tree produced by StellaParser#PatternTuple.
 	VisitPatternTuple(ctx *PatternTupleContext) interface{}
 
-	// Visit a parse tree produced by StellaParser#PatternRecord.
-	VisitPatternRecord(ctx *PatternRecordContext) interface{}
-
 	// Visit a parse tree produced by StellaParser#PatternList.
 	VisitPatternList(ctx *PatternListContext) interface{}
 
-	// Visit a parse tree produced by StellaParser#PatternCons.
-	VisitPatternCons(ctx *PatternConsContext) interface{}
+	// Visit a parse tree produced by StellaParser#PatternRecord.
+	VisitPatternRecord(ctx *PatternRecordContext) interface{}
 
-	// Visit a parse tree produced by StellaParser#PatternFalse.
-	VisitPatternFalse(ctx *PatternFalseContext) interface{}
+	// Visit a parse tree produced by StellaParser#PatternVariant.
+	VisitPatternVariant(ctx *PatternVariantContext) interface{}
 
-	// Visit a parse tree produced by StellaParser#PatternTrue.
-	VisitPatternTrue(ctx *PatternTrueContext) interface{}
-
-	// Visit a parse tree produced by StellaParser#PatternUnit.
-	VisitPatternUnit(ctx *PatternUnitContext) interface{}
+	// Visit a parse tree produced by StellaParser#PatternAsc.
+	VisitPatternAsc(ctx *PatternAscContext) interface{}
 
 	// Visit a parse tree produced by StellaParser#PatternInt.
 	VisitPatternInt(ctx *PatternIntContext) interface{}
 
-	// Visit a parse tree produced by StellaParser#PatternSucc.
-	VisitPatternSucc(ctx *PatternSuccContext) interface{}
+	// Visit a parse tree produced by StellaParser#PatternInr.
+	VisitPatternInr(ctx *PatternInrContext) interface{}
+
+	// Visit a parse tree produced by StellaParser#PatternTrue.
+	VisitPatternTrue(ctx *PatternTrueContext) interface{}
+
+	// Visit a parse tree produced by StellaParser#PatternInl.
+	VisitPatternInl(ctx *PatternInlContext) interface{}
 
 	// Visit a parse tree produced by StellaParser#PatternVar.
 	VisitPatternVar(ctx *PatternVarContext) interface{}
 
 	// Visit a parse tree produced by StellaParser#ParenthesisedPattern.
 	VisitParenthesisedPattern(ctx *ParenthesisedPatternContext) interface{}
+
+	// Visit a parse tree produced by StellaParser#PatternSucc.
+	VisitPatternSucc(ctx *PatternSuccContext) interface{}
+
+	// Visit a parse tree produced by StellaParser#PatternFalse.
+	VisitPatternFalse(ctx *PatternFalseContext) interface{}
+
+	// Visit a parse tree produced by StellaParser#PatternUnit.
+	VisitPatternUnit(ctx *PatternUnitContext) interface{}
+
+	// Visit a parse tree produced by StellaParser#PatternCastAs.
+	VisitPatternCastAs(ctx *PatternCastAsContext) interface{}
 
 	// Visit a parse tree produced by StellaParser#labelledPattern.
 	VisitLabelledPattern(ctx *LabelledPatternContext) interface{}
