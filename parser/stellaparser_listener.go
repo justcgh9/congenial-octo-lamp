@@ -299,6 +299,9 @@ type StellaParserListener interface {
 	// EnterTypeRec is called when entering the TypeRec production.
 	EnterTypeRec(c *TypeRecContext)
 
+	// EnterTypeAuto is called when entering the TypeAuto production.
+	EnterTypeAuto(c *TypeAutoContext)
+
 	// EnterTypeSum is called when entering the TypeSum production.
 	EnterTypeSum(c *TypeSumContext)
 
@@ -628,6 +631,9 @@ type StellaParserListener interface {
 
 	// ExitTypeRec is called when exiting the TypeRec production.
 	ExitTypeRec(c *TypeRecContext)
+
+	// ExitTypeAuto is called when exiting the TypeAuto production.
+	ExitTypeAuto(c *TypeAutoContext)
 
 	// ExitTypeSum is called when exiting the TypeSum production.
 	ExitTypeSum(c *TypeSumContext)

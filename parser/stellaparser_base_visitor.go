@@ -396,6 +396,10 @@ func (v *BaseStellaParserVisitor) VisitTypeRec(ctx *TypeRecContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseStellaParserVisitor) VisitTypeAuto(ctx *TypeAutoContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseStellaParserVisitor) VisitTypeSum(ctx *TypeSumContext) interface{} {
 	return v.VisitChildren(ctx)
 }

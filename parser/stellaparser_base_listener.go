@@ -603,6 +603,12 @@ func (s *BaseStellaParserListener) EnterTypeRec(ctx *TypeRecContext) {}
 // ExitTypeRec is called when production TypeRec is exited.
 func (s *BaseStellaParserListener) ExitTypeRec(ctx *TypeRecContext) {}
 
+// EnterTypeAuto is called when production TypeAuto is entered.
+func (s *BaseStellaParserListener) EnterTypeAuto(ctx *TypeAutoContext) {}
+
+// ExitTypeAuto is called when production TypeAuto is exited.
+func (s *BaseStellaParserListener) ExitTypeAuto(ctx *TypeAutoContext) {}
+
 // EnterTypeSum is called when production TypeSum is entered.
 func (s *BaseStellaParserListener) EnterTypeSum(ctx *TypeSumContext) {}
 

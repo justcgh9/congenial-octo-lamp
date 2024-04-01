@@ -298,6 +298,9 @@ type StellaParserVisitor interface {
 	// Visit a parse tree produced by StellaParser#TypeRec.
 	VisitTypeRec(ctx *TypeRecContext) interface{}
 
+	// Visit a parse tree produced by StellaParser#TypeAuto.
+	VisitTypeAuto(ctx *TypeAutoContext) interface{}
+
 	// Visit a parse tree produced by StellaParser#TypeSum.
 	VisitTypeSum(ctx *TypeSumContext) interface{}
 
