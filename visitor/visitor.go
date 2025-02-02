@@ -16,22 +16,120 @@ type TypeCheckVisitor struct {
 }
 
 func TypeCheck(exp, given interface{}) {
+
+	if exp.(env.Type).Type() == given.(env.Type).Type() {
+		return
+	}
+
 	switch exp.(type) {
 	default:
 		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 		os.Exit(1)
 	case env.Func:
-		ft, ok := given.(env.Func) 
-		if !ok {
-			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Func).Type(), " , given ", given.(env.Type).Type())
+		ef := exp.(env.Func)
+		_, ok := given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
 		}
-		_ = ft
+
+		ft, ok := given.(env.Func)
+
+		if !ok || !ft.IsAnonymous || ft.Return.Type() != ef.Return.Type() {
+			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		if len(ef.Args) != len(ft.Args) {
+			fmt.Println("UNEXPECTED_NUMBER_OF_PARAMETERS_IN_LAMBDA. Expected ", len(ef.Args), " , given ", len(ft.Args))
+			os.Exit(1)
+		}
+
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_PARAMETER")
+		os.Exit(1)
 
 	case env.Nat:
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+		os.Exit(1)
+
 	case env.Bool:
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+		os.Exit(1)
+		
+
 	case env.Tuple:
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		et := exp.(env.Tuple)
+		tt, ok := given.(env.Tuple)
+
+		if !ok {
+			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		if len(et.Elements) != len(tt.Elements) {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE_LENGTH. Expected ", len(et.Elements), " , given ", len(tt.Elements))
+			os.Exit(1)
+		}
+
+		for i := range et.Elements {
+			TypeCheck(et.Elements[i], tt.Elements[i])
+		}
+
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+		os.Exit(1)
+		
 	case env.Unit:
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+		os.Exit(1)
+		
 	}
+
+	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+	os.Exit(1)
 }
 
 func (v *TypeCheckVisitor) VisitStart_Program(ctx *parser.Start_ProgramContext) interface{} {
@@ -101,10 +199,7 @@ func (v *TypeCheckVisitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} 
 	ans := ctx.GetReturnExpr().Accept(v).(env.Type)
 	// fmt.Printf("\n---------\n%T\n----------\n", ctx.GetReturnExpr())
 	
-	if ans.Type() != returnType.Type() {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected", returnType.Type(), ", got: ", ans.Type())
-		os.Exit(1)
-	}
+	TypeCheck(returnType, ans)
 	
 	// fmt.Println(args)
 
@@ -149,10 +244,7 @@ func (v *TypeCheckVisitor) VisitAdd(ctx *parser.AddContext) interface{} {
 func (v *TypeCheckVisitor) VisitIsZero(ctx *parser.IsZeroContext) interface{} {
 	//TODO
 	nType := ctx.GetN().Accept(v).(env.Type)
-	if nType.Type() != "Nat" {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION.", nType.Type())
-		os.Exit(1)
-	}
+	TypeCheck(env.Nat{}, nType)
 	
 	return env.Bool{}
 }
@@ -323,10 +415,11 @@ func (v *TypeCheckVisitor) VisitApplication(ctx *parser.ApplicationContext) inte
 
 
 	for i, val := range ctx.GetArgs() {
-		if val.Accept(v).(env.Type).Type() != funcType.Args[i].Type() {
-			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-			os.Exit(1)
-		}
+		TypeCheck(funcType.Args[i], val.Accept(v))
+		// if val.Accept(v).(env.Type).Type() != funcType.Args[i].Type() {
+		// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		// 	os.Exit(1)
+		// }
 	}
 
 	return funcType.Return
@@ -352,14 +445,15 @@ func (v *TypeCheckVisitor) VisitSucc(ctx *parser.SuccContext) interface{} {
 	//TODO
 
 	s := ctx.Expr().Accept(v).(env.Type)
-	if  s.Type() == "Nat" {
-		return env.Nat{}
-	}
+	TypeCheck(env.Nat{}, s)
+	// if  s.Type() == "Nat" {
+	// 	return env.Nat{}
+	// }
 
-	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected: Nat, got: ", s.Type())
-	os.Exit(1)
+	// fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected: Nat, got: ", s.Type())
+	// os.Exit(1)
 
-	return v.VisitChildren(ctx)
+	return env.Nat{}
 }
 
 func (v *TypeCheckVisitor) VisitInl(ctx *parser.InlContext) interface{} {
@@ -425,35 +519,46 @@ func (v *TypeCheckVisitor) VisitTypeAsc(ctx *parser.TypeAscContext) interface{} 
 func (v *TypeCheckVisitor) VisitNatRec(ctx *parser.NatRecContext) interface{} {
 	//TODO
 
-	_, ok := ctx.GetN().Accept(v).(env.Nat)
-	if !ok {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-		os.Exit(1)
-	}
+	TypeCheck(env.Nat{}, ctx.GetN().Accept(v))
+	// _, ok := ctx.GetN().Accept(v).(env.Nat)
+	// if !ok {
+	// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	// 	os.Exit(1)
+	// }
 
 	zType := ctx.GetInitial().Accept(v).(env.Type)
-	stepType, ok := ctx.GetStep().Accept(v).(env.Func)
-	if !ok {
-		// fmt.Printf("%T\n", ctx.GetInitial())
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-		os.Exit(1)
-	}
+	TypeCheck(
+		env.Func{
+			Args: []env.Type{env.Nat{}},
+			Return: env.Func{
+				Args: []env.Type{zType},
+				Return: zType,
+			},
+		},
+		ctx.GetStep().Accept(v),
+	)
+	// stepType, ok := ctx.GetStep().Accept(v).(env.Func)
+	// if !ok {
+	// 	// fmt.Printf("%T\n", ctx.GetInitial())
+	// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	// 	os.Exit(1)
+	// }
 
-	if len(stepType.Args) != 1 || stepType.Args[0].Type() != "Nat" {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-		os.Exit(1)
-	}
+	// if len(stepType.Args) != 1 || stepType.Args[0].Type() != "Nat" {
+	// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	// 	os.Exit(1)
+	// }
 
-	secondStepType, ok := stepType.Return.(env.Func)
-	if !ok {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-		os.Exit(1)
-	}
+	// secondStepType, ok := stepType.Return.(env.Func)
+	// if !ok {
+	// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	// 	os.Exit(1)
+	// }
 
-	if len(secondStepType.Args) != 1 || secondStepType.Args[0].Type() != zType.Type() || secondStepType.Return.Type() != zType.Type() {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-		os.Exit(1)
-	}
+	// if len(secondStepType.Args) != 1 || secondStepType.Args[0].Type() != zType.Type() || secondStepType.Return.Type() != zType.Type() {
+	// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	// 	os.Exit(1)
+	// }
 
 	// fmt.Printf("%T\n", stepType.Return.(env.Func).Args[0])
 
