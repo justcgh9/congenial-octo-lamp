@@ -199,6 +199,29 @@ func (v *TypeCheckVisitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} 
 
 	v.env.Push()
 
+	decls := ctx.GetLocalDecls()
+
+	for _, decl := range decls {
+		val, ok := decl.(*parser.DeclFunContext)
+		if !ok {
+			fmt.Println("ERROR_NOT_A_FUNCTION")
+		}
+		args := make([]env.Type, 0, len(val.GetParamDecls()))
+		for _, value := range val.GetParamDecls() {
+			args = append(args, value.Accept(v).(env.Type))
+		}
+		returnType := val.GetReturnType().Accept(v).(env.Type)
+
+		v.env.Put(val.GetName().GetText(), env.Func{
+			Args: args,
+			Return: returnType,
+		})
+	}
+
+	for _, decl := range decls {
+		decl.Accept(v)
+	}
+
 	for _, val := range ctx.GetParamDecls() {
 		v.env.Put(val.GetName().GetText(), val.Accept(v).(env.Type))
 	}
@@ -371,6 +394,10 @@ func (v *TypeCheckVisitor) VisitAbstraction(ctx *parser.AbstractionContext) inte
 func (v *TypeCheckVisitor) VisitConstInt(ctx *parser.ConstIntContext) interface{} {
 	//TODO
 
+	if val, _ := strconv.Atoi(ctx.GetN().GetText()); val < 0 {
+		fmt.Println("ERROR_ILLEGAL_NEGATIVE_LITERAL")	
+	}
+
 	return env.Nat{}
 }
 
@@ -394,7 +421,7 @@ func (v *TypeCheckVisitor) VisitTypeCast(ctx *parser.TypeCastContext) interface{
 
 func (v *TypeCheckVisitor) VisitIf(ctx *parser.IfContext) interface{} {
 	// TODO
-
+    
 	_, ok := ctx.GetCondition().Accept(v).(env.Bool)
 	if !ok {
 		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
