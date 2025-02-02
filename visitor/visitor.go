@@ -147,6 +147,22 @@ func (v *TypeCheckVisitor) VisitStart_Type(ctx *parser.Start_TypeContext) interf
 func (v *TypeCheckVisitor) VisitProgram(ctx *parser.ProgramContext) interface{} {
 	//TODO check the order of functions
 	v.env.Push()
+
+	for _, decl := range ctx.GetDecls() {
+		val, ok := decl.(*parser.DeclFunContext)
+		if !ok {continue}
+		args := make([]env.Type, 0, len(val.GetParamDecls()))
+		for _, val := range val.GetParamDecls() {
+			args = append(args, val.Accept(v).(env.Type))
+		}
+		returnType := val.GetReturnType().Accept(v).(env.Type)
+		
+		v.env.Put(val.GetName().GetText(), env.Func{
+			Args: args,
+			Return: returnType,
+		})
+	}
+
 	for _, decl := range ctx.GetDecls() {
 		decl.Accept(v)
 	}
@@ -178,18 +194,9 @@ func (v *TypeCheckVisitor) VisitAnExtension(ctx *parser.AnExtensionContext) inte
 func (v *TypeCheckVisitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} {
 	//TODO
 
-	args := make([]env.Type, 0, len(ctx.GetParamDecls()))
-	for _, val := range ctx.GetParamDecls() {
-		// fmt.Printf("%T %s\n", val, val.GetName().GetText())
-		args = append(args, val.Accept(v).(env.Type))
-	}
+
 	returnType := ctx.GetReturnType().Accept(v).(env.Type)
-	
-	v.env.Put(ctx.GetName().GetText(), env.Func{
-		Args: args,
-		Return: returnType,
-	})
-	// fmt.Printf("%T\n", ctx.GetReturnType())
+
 	v.env.Push()
 
 	for _, val := range ctx.GetParamDecls() {
