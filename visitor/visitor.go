@@ -15,6 +15,25 @@ type TypeCheckVisitor struct {
 	env env.Env
 }
 
+func TypeCheck(exp, given interface{}) {
+	switch exp.(type) {
+	default:
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+		os.Exit(1)
+	case env.Func:
+		ft, ok := given.(env.Func) 
+		if !ok {
+			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Func).Type(), " , given ", given.(env.Type).Type())
+		}
+		_ = ft
+
+	case env.Nat:
+	case env.Bool:
+	case env.Tuple:
+	case env.Unit:
+	}
+}
+
 func (v *TypeCheckVisitor) VisitStart_Program(ctx *parser.Start_ProgramContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -35,9 +54,14 @@ func (v *TypeCheckVisitor) VisitProgram(ctx *parser.ProgramContext) interface{} 
 	}
 
 	val, ok := v.env.Check("main").(env.Func)
-	if !ok || len(val.Args) != 1 || (val.Args[0].Type() != "Bool" && val.Args[0].Type() != "Nat") || (val.Return.Type() != "Bool" && val.Return.Type() != "Nat") {
+	if !ok  {
 		fmt.Println("ERROR_MISSING_MAIN")
 		os.Exit(1)	
+	}
+
+	if len(val.Args) != 1 {
+		fmt.Println("ERROR_INCORRECT_ARITY_OF_MAIN")
+		os.Exit(1)
 	}
 	
 	v.env.Pop()
@@ -126,7 +150,8 @@ func (v *TypeCheckVisitor) VisitIsZero(ctx *parser.IsZeroContext) interface{} {
 	//TODO
 	nType := ctx.GetN().Accept(v).(env.Type)
 	if nType.Type() != "Nat" {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION", nType.Type())
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION.", nType.Type())
+		os.Exit(1)
 	}
 	
 	return env.Bool{}
@@ -136,7 +161,7 @@ func (v *TypeCheckVisitor) VisitVar(ctx *parser.VarContext) interface{} {
 	//TODO
 	tp := v.env.Check(ctx.GetName().GetText())
 	if tp.Type() == "" {
-		fmt.Println("ERROR_UNDEFINED_VARIABLE: ", ctx.GetName().GetText())
+		fmt.Println("ERROR_UNDEFINED_VARIABLE.: ", ctx.GetName().GetText())
 		os.Exit(1)
 	}
 	return tp
@@ -223,11 +248,9 @@ func (v *TypeCheckVisitor) VisitAbstraction(ctx *parser.AbstractionContext) inte
 
 
 	v.env.Push()
-	if len(ctx.GetParamDecls()) != 1 {
-		fmt.Println("ERROR_UNEXPECTED_NUMBER_OF_PARAMETERS_IN_LAMBDA")
-		os.Exit(1)
+	for i := range ctx.GetParamDecls() {
+		v.env.Put(ctx.GetParamDecls()[i].GetName().GetText(), ctx.GetParamDecls()[i].Accept(v).(env.Type))
 	}
-	v.env.Put(ctx.GetParamDecls()[0].GetName().GetText(), ctx.GetParamDecls()[0].Accept(v).(env.Type))
 
 	returnType := ctx.GetReturnExpr().Accept(v).(env.Type)
 	v.env.Pop()
@@ -287,6 +310,7 @@ func (v *TypeCheckVisitor) VisitApplication(ctx *parser.ApplicationContext) inte
 	funcType, ok := ctx.GetFun().Accept(v).(env.Func)
 
 	if !ok {
+		// fmt.Printf("%T\n", ctx.GetFun())
 		fmt.Println("ERROR_NOT_A_FUNCTION")
 		os.Exit(1)
 	}
@@ -332,7 +356,7 @@ func (v *TypeCheckVisitor) VisitSucc(ctx *parser.SuccContext) interface{} {
 		return env.Nat{}
 	}
 
-	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION, expected: Nat, got: ", s.Type())
+	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected: Nat, got: ", s.Type())
 	os.Exit(1)
 
 	return v.VisitChildren(ctx)
@@ -359,7 +383,7 @@ func (v *TypeCheckVisitor) VisitLogicNot(ctx *parser.LogicNotContext) interface{
 }
 
 func (v *TypeCheckVisitor) VisitParenthesisedExpr(ctx *parser.ParenthesisedExprContext) interface{} {
-	return v.VisitChildren(ctx)
+	return ctx.GetExpr_().Accept(v)
 }
 
 func (v *TypeCheckVisitor) VisitTail(ctx *parser.TailContext) interface{} {
@@ -404,13 +428,14 @@ func (v *TypeCheckVisitor) VisitNatRec(ctx *parser.NatRecContext) interface{} {
 	_, ok := ctx.GetN().Accept(v).(env.Nat)
 	if !ok {
 		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		os.Exit(1)
 	}
 
 	zType := ctx.GetInitial().Accept(v).(env.Type)
 	stepType, ok := ctx.GetStep().Accept(v).(env.Func)
 	if !ok {
 		// fmt.Printf("%T\n", ctx.GetInitial())
-		fmt.Println("ERROR_NOT_A_FUNCTION")
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
 		os.Exit(1)
 	}
 
@@ -447,7 +472,7 @@ func (v *TypeCheckVisitor) VisitDotTuple(ctx *parser.DotTupleContext) interface{
 	// TODO
 	tuple, ok := ctx.GetExpr_().Accept(v).(env.Tuple)
 	if !ok {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		fmt.Println("ERROR_NOT_A_TUPLE")
 		os.Exit(1)
 	}
 
@@ -480,7 +505,7 @@ func (v *TypeCheckVisitor) VisitLet(ctx *parser.LetContext) interface{} {
 			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
 			os.Exit(1)
 		}
-		v.env.Put(b.Name, b.Type)
+		v.env.Put(b.Name, b.T)
 	}
 	t := ctx.GetBody().Accept(v).(env.Type)
 	v.env.Pop()
@@ -511,7 +536,7 @@ func (v *TypeCheckVisitor) VisitConsList(ctx *parser.ConsListContext) interface{
 func (v *TypeCheckVisitor) VisitPatternBinding(ctx *parser.PatternBindingContext) interface{} {
 	// TODO
 	t := ctx.GetPat().Accept(v).(env.Binding)
-	t.Type = ctx.GetRhs().Accept(v).(env.Type)
+	t.T = ctx.GetRhs().Accept(v).(env.Type)
 	return t
 }
 
@@ -659,7 +684,7 @@ func (v *TypeCheckVisitor) VisitTypeBottom(ctx *parser.TypeBottomContext) interf
 }
 
 func (v *TypeCheckVisitor) VisitTypeParens(ctx *parser.TypeParensContext) interface{} {
-	fmt.Printf("%T\n", ctx.GetType_())
+	// fmt.Printf("%T\n", ctx.GetType_())
 	return ctx.GetType_().Accept(v).(env.Type)	
 }
 

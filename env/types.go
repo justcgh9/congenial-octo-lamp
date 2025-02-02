@@ -61,7 +61,11 @@ func (t Tuple) Type() string {
 
 type Binding struct {
 	Name string
-	Type Type
+	T Type
+}
+
+func (b Binding) Type() string {
+	return b.Name + ":" + b.T.Type()
 }
 
 type Erroneos struct {}
