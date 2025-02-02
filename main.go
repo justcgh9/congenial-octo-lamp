@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"stella-implementation-in-go/parser"
 	"stella-implementation-in-go/visitor"
@@ -12,14 +13,20 @@ import (
 // TODO: проверить в песочнице, примет ли функция в качестве параметра функцию -> функцию -> значение в качестве функции от двух аргументов и наоборот.
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Println("incorrect number of command line arguments, expected 1")
-		os.Exit(1)
-	}
-	fileName := os.Args[1]
-	content, err := os.ReadFile(fileName)
+	// if len(os.Args) != 2 {
+	// 	fmt.Println("incorrect number of command line arguments, expected 1")
+	// 	os.Exit(1)
+	// }
+	// fileName := os.Args[1]
+	// content, err := os.ReadFile(fileName)
+	// if err != nil {
+	// 	fmt.Println("error reading from file ", fileName, " : ", err.Error())
+	// 	os.Exit(1)
+	// }
+	content, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		fmt.Println("error reading from file ", fileName, " : ", err.Error())
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 	input := antlr.NewInputStream(string(content))
 	lexer := parser.NewStellaLexer(input)

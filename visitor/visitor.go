@@ -346,11 +346,19 @@ func (v *TypeCheckVisitor) VisitAbstraction(ctx *parser.AbstractionContext) inte
 
 	returnType := ctx.GetReturnExpr().Accept(v).(env.Type)
 	v.env.Pop()
-	return env.Func{
-		Args: []env.Type{ctx.GetParamDecls()[0].Accept(v).(env.Type)},
+
+	res := env.Func{
 		Return: returnType,
 		IsAnonymous: true,
 	}
+
+	args := make([]env.Type, len(ctx.GetParamDecls()))
+	for i, val := range ctx.GetParamDecls() {
+		args[i] = val.Accept(v).(env.Type)
+	}
+
+	res.Args = args
+	return res
 }
 
 func (v *TypeCheckVisitor) VisitConstInt(ctx *parser.ConstIntContext) interface{} {

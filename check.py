@@ -25,21 +25,34 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
                 
                 go_process = subprocess.Popen([go_binary_path] + [file_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 # print(errors)
+                with open(file_path, 'r') as newfile:
+                    for line in newfile:
+                        go_process.stdin.write(line)
                 
-                # go_process.stdin.close()
+                go_process.stdin.close()
+                output = []
                 for output_line in go_process.stdout:
                     if output_line.startswith("ERROR"):
                         # print(output_line.split(".")[0])
                         if output_line.split(".")[0].strip() not in errors:
                             print(f"{filename}: Expected one of {errors}, got {output_line.split(".")[0]}")
                 
+                for line in go_process.stderr:
+                    output.append(line)
+                
+                go_process.wait()
+                status = go_process.returncode
+                if status > 1:
+                    print(f"Test: {filename}")
+                    for line in output:
+                        print(line)
                 
                 # os.remove(file_path) 
         
         # time.sleep(1)  # Avoid tight loops, adjust as needed
 
 if __name__ == "__main__":
-    folder_path = "./examples/public-tests/week-1/extra/contributed"  # Change this to the folder you want to monitor
+    folder_path = "./examples/public-tests/week-1/extra/public"  # Change this to the folder you want to monitor
     binary_path = "./stella"  # Change this to the binary you want to execute
     binary_args = ["typecheck"]  # Add any arguments needed for the binary
     go_binary_path = "./my-stella"
