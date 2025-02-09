@@ -64,10 +64,8 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
 
 if __name__ == "__main__":
     # folder_path = "./examples/public-tests/week-2/main/public/"
-    folder_path = "./examples/tests-master/sum-types/ill-typed"  # Change this to the folder you want to monitor
     binary_path = "./stella"  # Change this to the binary you want to execute
     binary_args = ["typecheck"]  # Add any arguments needed for the binary
     go_binary_path = "./my-stella"
     print("Started")
     process_files(folder_path, binary_path, binary_args, go_binary_path)
-

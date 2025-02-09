@@ -86,10 +86,23 @@ func (v *TypeCheckVisitor) GeneratePatternOptions(x interface{}, pattern string)
 		v.patterns[pattern + "false"] = false
 	case env.Nat:
 		v.patterns[pattern + "nat"] = false
+		v.patterns[pattern + "nat 0"] = false
 	case env.Sum:
 		v.GeneratePatternOptions(x.Left, pattern + "inl ")
 		v.GeneratePatternOptions(x.Right, pattern + "inr ")
 	case env.Func:
+		v.patterns[pattern + x.Type()] = false
+	case env.Unit:
+		v.patterns[pattern + "unit"] = false
+	case env.List:
+		if x.T == nil || x.T.Type() == "" {
+			fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
+			os.Exit(1)
+		}
+		v.patterns[pattern + "[]"] = false
+		v.patterns[pattern + "[]" + x.T.Type()] = false
+	
+	case env.Tuple:
 		v.patterns[pattern + x.Type()] = false
 	}
 }
@@ -845,7 +858,7 @@ func (v *TypeCheckVisitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 
 	buff := v.patterns
 	v.patterns = make(map[string]bool)
-	// v.GeneratePatternOptions(ctx.GetExpr_().Accept(v))
+	v.GeneratePatternOptions(ctx.GetExpr_().Accept(v), "")
 
 	// t := cases[0].Accept(v).(env.Type)
 
@@ -857,6 +870,13 @@ func (v *TypeCheckVisitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 	for i := 0; i < len(cases); i++ {
 		// fmt.Println(v.env.Check("0").Type(), cases[i].Accept(v).(env.Type).Type())
 		TypeCheck(v.env.Check("0"), cases[i].Accept(v), "strictSum")
+	}
+
+	for k, v := range v.patterns{
+		if !v {
+			fmt.Println("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS. Key", k, "is not matched")
+			os.Exit(0)
+		}
 	}
 
 	v.patterns = buff
@@ -1099,6 +1119,17 @@ func (v *TypeCheckVisitor) VisitMatchCase(ctx *parser.MatchCaseContext) interfac
 		res := expr.Accept(v)
 		v.env.Put(myPt.Name, temp)
 		return res
+	case []env.Binding:
+		var temp []env.Type
+		for _, val := range myPt {
+			temp = append(temp, v.env.Check(val.Name))
+			v.env.Put(val.Name, val.T)
+		}
+		res := expr.Accept(v)
+		for i, val := range myPt {
+			v.env.Put(val.Name, temp[i])
+		}
+		return res
 	}
 }
 
@@ -1107,7 +1138,39 @@ func (v *TypeCheckVisitor) VisitPatternCons(ctx *parser.PatternConsContext) inte
 }
 
 func (v *TypeCheckVisitor) VisitPatternTuple(ctx *parser.PatternTupleContext) interface{} {
-	return v.VisitChildren(ctx)
+	tuple, ok := v.env.Check("-1").(env.Tuple); 
+	if !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+	exprs := ctx.GetPatterns()
+	if len(exprs) != len(tuple.Elements) {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+
+	var bindings []env.Binding
+	buffPattern := v.curPattern
+	v.curPattern += "-*#blabla"
+
+	for i := range exprs {
+		v.env.Put("-1", tuple.Elements[i])
+		switch t := exprs[i].(type) {
+		default:
+			t.Accept(v)
+		case *parser.PatternVarContext:
+			bindings = append(bindings, t.Accept(v).(env.Binding))
+		case *parser.PatternTupleContext:
+			bindings = append(bindings, t.Accept(v).([]env.Binding)...)
+		case *parser.PatternListContext:
+			bindings = append(bindings, t.Accept(v).([]env.Binding)...)
+		}
+	}
+
+	v.curPattern = buffPattern
+	addIfExists(v.patterns, v.curPattern + tuple.Type())
+	v.env.Put("-1", tuple)
+	return bindings
 }
 
 func (v *TypeCheckVisitor) VisitPatternList(ctx *parser.PatternListContext) interface{} {
@@ -1127,7 +1190,22 @@ func (v *TypeCheckVisitor) VisitPatternAsc(ctx *parser.PatternAscContext) interf
 }
 
 func (v *TypeCheckVisitor) VisitPatternInt(ctx *parser.PatternIntContext) interface{} {
-	return v.VisitChildren(ctx)
+	if _, ok := v.env.Check("-1").(env.Nat); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+	val, err := strconv.Atoi(ctx.GetN().GetText())
+	if err != nil {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+
+	if val == 0 {
+		addIfExists(v.patterns, v.curPattern + "nat 0")
+		// v.patterns[v.curPattern + "nat 0"] = true
+	}
+
+	return env.Nat{}
 }
 
 func (v *TypeCheckVisitor) VisitPatternInr(ctx *parser.PatternInrContext) interface{} {
@@ -1140,14 +1218,25 @@ func (v *TypeCheckVisitor) VisitPatternInr(ctx *parser.PatternInrContext) interf
 	}
 
 	v.env.Put("-1", temp.(env.Sum).Right)
-	
+	buffPattern := v.curPattern
+	v.curPattern += "inr "
 	pattern := ctx.GetPattern_().Accept(v)	
 	v.env.Put("-1", temp)
 	// fmt.Printf("%T\n", ctx.GetPattern_())
+	v.curPattern = buffPattern
 	return pattern
 }
 
 func (v *TypeCheckVisitor) VisitPatternTrue(ctx *parser.PatternTrueContext) interface{} {
+	if _, ok := v.env.Check("-1").(env.Bool); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+	// if _, ok := v.patterns[v.curPattern + "true"]; !ok {
+	// 	fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+	// 	os.Exit(1)
+	// }
+	addIfExists(v.patterns, v.curPattern + "true")
 	return env.Bool{
 		Val: "true",
 	}
@@ -1162,10 +1251,12 @@ func (v *TypeCheckVisitor) VisitPatternInl(ctx *parser.PatternInlContext) interf
 	}
 
 	v.env.Put("-1", temp.(env.Sum).Left)
-	
+	buffPattern := v.curPattern
+	v.curPattern += "inl "
 	pattern := ctx.GetPattern_().Accept(v)	
 	v.env.Put("-1", temp)
 	// fmt.Printf("%T\n", ctx.GetPattern_())
+	v.curPattern = buffPattern
 	return pattern
 }
 
@@ -1173,6 +1264,12 @@ func (v *TypeCheckVisitor) VisitPatternVar(ctx *parser.PatternVarContext) interf
 	// TODO
 	// fmt.Println(ctx.GetName().GetText())
 	if val := v.env.Check("-1"); val.Type() != "" {
+		for key := range v.patterns {
+			if startsWith(v.curPattern, key) {
+				addIfExists(v.patterns, key)
+			}
+		}
+
 		return env.Binding {
 			Name: ctx.GetName().GetText(),
 			T: val,
@@ -1189,17 +1286,54 @@ func (v *TypeCheckVisitor) VisitParenthesisedPattern(ctx *parser.ParenthesisedPa
 }
 
 func (v *TypeCheckVisitor) VisitPatternSucc(ctx *parser.PatternSuccContext) interface{} {
+	if _, ok := v.env.Check("-1").(env.Nat); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+	switch x := ctx.GetPattern_().(type) {
+	default:
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	case *parser.PatternVarContext:
+		r := x.Accept(v)
+		// if !ok {}
+		removeIfExists(v.patterns, v.curPattern + "nat 0")
+		return r
+	case *parser.PatternIntContext:
+		// return x.Accept(v)
+		r := x.Accept(v)
+		// if !ok {}
+		removeIfExists(v.patterns, v.curPattern + "nat 0")
+		return r
+	}
 	return v.VisitChildren(ctx)
 }
 
 func (v *TypeCheckVisitor) VisitPatternFalse(ctx *parser.PatternFalseContext) interface{} {
+	if _, ok := v.env.Check("-1").(env.Bool); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+
+	// if _, ok := v.patterns[v.curPattern + "false"]; !ok {
+	// 	fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+	// 	os.Exit(1)
+	// }
+	// v.patterns[v.curPattern + "false"] = true
+	addIfExists(v.patterns, v.curPattern + "false")
 	return env.Bool{
 		Val: "false",
 	}
 }
 
 func (v *TypeCheckVisitor) VisitPatternUnit(ctx *parser.PatternUnitContext) interface{} {
-	return v.VisitChildren(ctx)
+	if _, ok := v.env.Check("-1").(env.Unit); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+	// v.patterns[v.curPattern + "unit"] = true
+	addIfExists(v.patterns, v.curPattern + "unit")
+	return env.Unit{}
 }
 
 func (v *TypeCheckVisitor) VisitPatternCastAs(ctx *parser.PatternCastAsContext) interface{} {
