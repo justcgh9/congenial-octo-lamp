@@ -10,7 +10,9 @@ func (n Nat) Type() string {
 	return "Nat"
 }
 
-type Bool struct {}
+type Bool struct {
+	Val string
+}
 
 func (b Bool) Type() string {
 	return "Bool"
@@ -72,4 +74,32 @@ type Erroneos struct {}
 
 func (e Erroneos) Type() string {
 	return ""
+}
+
+type Any struct {}
+
+func (a Any) Type() string {
+	return "any"
+}
+
+type Sum struct {
+	Left  Type
+	Right Type
+}
+
+func (s Sum) Type() string {
+	return s.Left.Type() + "+" + s.Right.Type()
+}
+
+type List struct {
+	T Type
+	IsLiteral bool
+	// Elements []Type
+}
+
+func (l List) Type() string {
+	if l.T == nil {
+		return "[]"
+	}
+	return "[" + l.T.Type() + "]"
 }

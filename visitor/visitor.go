@@ -13,9 +13,88 @@ import (
 type TypeCheckVisitor struct {
 	*antlr.BaseParseTreeVisitor
 	env env.Env
+	patterns map[string]bool
+	curPattern string
 }
 
-func TypeCheck(exp, given interface{}) {
+func contains(str string, args ...string) bool {
+	if len(args) <= 0 {
+		return false
+	}
+
+	for _, arg := range args {
+		if arg == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+func startsWith(s, t string) bool {
+	if len(s) > len(t) {
+		return false
+	}
+
+	return s == t[:len(s)]
+}
+
+func ascriptSumTypes(f, s env.Sum) env.Sum {
+	
+	fl, fok := f.Left.(env.Sum)
+	sl, sok := s.Left.(env.Sum)
+
+	if fok && sok {
+		fl.Left = ascriptSumTypes(fl, sl)
+	}
+
+	fr, fok := f.Right.(env.Sum)
+	sr, sok := s.Right.(env.Sum)
+
+	if fok && sok {
+		fl.Right = ascriptSumTypes(fr, sr)
+	}
+
+	if f.Left.Type() == (env.Any{}).Type() {
+		f.Left = s.Left
+	}
+
+	if f.Right.Type() == (env.Any{}).Type() {
+		f.Right = s.Right
+	}
+	
+	return f
+}
+
+func isAmbiguousSumType(t interface{}) bool {
+	switch t := t.(type) {
+	default:
+		return false
+	case env.Sum:
+		if isAny(t.Left) || isAny(t.Right) {
+			return true
+		}
+		return isAmbiguousSumType(t.Left) || isAmbiguousSumType(t.Right)
+	}
+}
+
+func (v *TypeCheckVisitor) GeneratePatternOptions(x interface{}, pattern string) {
+	switch x := x.(type) {
+	default:
+	case env.Bool:
+		v.patterns[pattern + "true"] = false
+		v.patterns[pattern + "false"] = false
+	case env.Nat:
+		v.patterns[pattern + "nat"] = false
+	case env.Sum:
+		v.GeneratePatternOptions(x.Left, pattern + "inl ")
+		v.GeneratePatternOptions(x.Right, pattern + "inr ")
+	case env.Func:
+		v.patterns[pattern + x.Type()] = false
+	}
+}
+
+func TypeCheck(exp, given interface{}, args ...string) {
 
 	if exp.(env.Type).Type() == given.(env.Type).Type() {
 		return
@@ -33,6 +112,22 @@ func TypeCheck(exp, given interface{}) {
 			os.Exit(1)
 		}
 
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
 		ft, ok := given.(env.Func)
 
 		if !ok || !ft.IsAnonymous || ft.Return.Type() != ef.Return.Type() {
@@ -41,7 +136,7 @@ func TypeCheck(exp, given interface{}) {
 		}
 
 		if len(ef.Args) != len(ft.Args) {
-			fmt.Println("UNEXPECTED_NUMBER_OF_PARAMETERS_IN_LAMBDA. Expected ", len(ef.Args), " , given ", len(ft.Args))
+			fmt.Println("ERROR_UNEXPECTED_NUMBER_OF_PARAMETERS_IN_LAMBDA. Expected ", len(ef.Args), " , given ", len(ft.Args))
 			os.Exit(1)
 		}
 
@@ -52,6 +147,22 @@ func TypeCheck(exp, given interface{}) {
 		ft, ok := given.(env.Func)
 		if ok && ft.IsAnonymous {
 			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 			os.Exit(1)
 		}
 
@@ -71,6 +182,22 @@ func TypeCheck(exp, given interface{}) {
 			os.Exit(1)
 		}
 
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
 		_, ok = given.(env.Tuple)
 		if ok {
 			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
@@ -86,6 +213,22 @@ func TypeCheck(exp, given interface{}) {
 		ft, ok := given.(env.Func)
 		if ok && ft.IsAnonymous {
 			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 			os.Exit(1)
 		}
 
@@ -122,10 +265,117 @@ func TypeCheck(exp, given interface{}) {
 			os.Exit(1)
 		}
 
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
 
 		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 		os.Exit(1)
+	
+	case env.Sum:
+		et := exp.(env.Sum)
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		st, ok := given.(env.Sum) 
+		if !ok {
+			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
 		
+		if st.Left.Type() != et.Left.Type() {
+			if isAny(et.Left) || isAny(st.Left) {
+				if contains("strictSum", args...) {
+					// fmt.Println(et.Left.Type(), st.Left.Type())
+					fmt.Println("ERROR_AMBIGUOUS_SUM_TYPE")
+					os.Exit(1)
+				}
+			} else {
+				TypeCheck(et.Left, st.Left, args...)
+			}
+		}
+
+		if st.Right.Type() != et.Right.Type() {
+			if isAny(et.Right) || isAny(st.Right) {
+				if contains("strictSum", args...) {
+					fmt.Println(et.Right.Type(), st.Right.Type())
+					fmt.Println("ERROR_AMBIGUOUS_SUM_TYPE")
+					os.Exit(1)
+				}
+			} else {
+				TypeCheck(et.Right, st.Right, args...)
+			}
+		}
+
+
+		return
+
+	case env.List:
+
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		gt, ok := given.(env.List)
+		if !ok {
+			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		if (gt.T == nil || gt.T.Type() == "") {
+			if contains("strictList", args...) {
+				fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
+				os.Exit(1)
+			}
+
+			return
+		}
 	}
 
 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
@@ -198,6 +448,7 @@ func (v *TypeCheckVisitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} 
 	returnType := ctx.GetReturnType().Accept(v).(env.Type)
 
 	v.env.Push()
+	v.env.Put("0", returnType)
 
 	decls := ctx.GetLocalDecls()
 
@@ -228,8 +479,8 @@ func (v *TypeCheckVisitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} 
 
 	ans := ctx.GetReturnExpr().Accept(v).(env.Type)
 	// fmt.Printf("\n---------\n%T\n----------\n", ctx.GetReturnExpr())
-	
-	TypeCheck(returnType, ans)
+	// fmt.Println(returnType.Type(), ans.Type())
+	TypeCheck(returnType, ans, "strictSum")
 	
 	// fmt.Println(args)
 
@@ -326,7 +577,28 @@ func (v *TypeCheckVisitor) VisitConstMemory(ctx *parser.ConstMemoryContext) inte
 }
 
 func (v *TypeCheckVisitor) VisitList(ctx *parser.ListContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	exprs := ctx.GetExprs()
+
+	// fmt.Println(ctx.GetText())
+
+	if len(exprs) <= 0 {
+		return env.List{
+			IsLiteral: true,
+		}
+	}
+
+	t := exprs[0].Accept(v).(env.Type)
+
+	for _, val := range exprs {
+		// fmt.Println(t.Type(), val.Accept(v).(env.Type).Type())
+		TypeCheck(t, val.Accept(v).(env.Type))
+	}
+
+	return env.List{
+		T: t,
+		IsLiteral: true,
+	}
 }
 
 func (v *TypeCheckVisitor) VisitTryCatch(ctx *parser.TryCatchContext) interface{} {
@@ -338,11 +610,23 @@ func (v *TypeCheckVisitor) VisitTryCastAs(ctx *parser.TryCastAsContext) interfac
 }
 
 func (v *TypeCheckVisitor) VisitHead(ctx *parser.HeadContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	t, ok := ctx.GetList().Accept(v).(env.List); 
+	if !ok {
+		fmt.Println("ERROR_NOT_A_LIST")
+		os.Exit(1)
+	}
+
+	if t.T == nil {
+		fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
+		os.Exit(1)
+	}
+	
+	return t.T
 }
 
 func (v *TypeCheckVisitor) VisitTerminatingSemicolon(ctx *parser.TerminatingSemicolonContext) interface{} {
-	return v.VisitChildren(ctx)
+	return ctx.GetExpr_().Accept(v)
 }
 
 func (v *TypeCheckVisitor) VisitNotEqual(ctx *parser.NotEqualContext) interface{} {
@@ -375,6 +659,13 @@ func (v *TypeCheckVisitor) VisitAbstraction(ctx *parser.AbstractionContext) inte
 	}
 
 	returnType := ctx.GetReturnExpr().Accept(v).(env.Type)
+
+	if isAmbiguousSumType(returnType) {
+		// fmt.Println(returnType.Type())
+		fmt.Println("ERROR_AMBIGUOUS_SUM_TYPE")
+		os.Exit(1)
+	}
+
 	v.env.Pop()
 
 	res := env.Func{
@@ -424,15 +715,22 @@ func (v *TypeCheckVisitor) VisitIf(ctx *parser.IfContext) interface{} {
     
 	_, ok := ctx.GetCondition().Accept(v).(env.Bool)
 	if !ok {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		TypeCheck(env.Bool{}, ctx.GetCondition().Accept(v))
 		os.Exit(1)
 	}
 
-	theN, elsE := ctx.GetThenExpr().Accept(v).(env.Type), ctx.GetThenExpr().Accept(v).(env.Type)
-	if theN.Type() != elsE.Type() {
-		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-		os.Exit(1)
+	theN, elsE := ctx.GetThenExpr().Accept(v).(env.Type), ctx.GetElseExpr().Accept(v).(env.Type)
+	
+	TypeCheck(theN, elsE)
+
+	f, fok := theN.(env.Sum)
+	s, sok := elsE.(env.Sum)
+	if fok && sok {
+		return ascriptSumTypes(f, s)
 	}
+	
+
+	// fmt.Printf("else %T\n", theN)
 
 	return theN
 }
@@ -457,7 +755,11 @@ func (v *TypeCheckVisitor) VisitApplication(ctx *parser.ApplicationContext) inte
 
 
 	for i, val := range ctx.GetArgs() {
-		TypeCheck(funcType.Args[i], val.Accept(v))
+		if funcType.IsAnonymous {
+			TypeCheck(funcType.Args[i], val.Accept(v), "strictSum")
+		} else {
+			TypeCheck(funcType.Args[i], val.Accept(v))
+		}
 		// if val.Accept(v).(env.Type).Type() != funcType.Args[i].Type() {
 		// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
 		// 	os.Exit(1)
@@ -472,7 +774,18 @@ func (v *TypeCheckVisitor) VisitDeref(ctx *parser.DerefContext) interface{} {
 }
 
 func (v *TypeCheckVisitor) VisitIsEmpty(ctx *parser.IsEmptyContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	t, ok := ctx.GetList().Accept(v).(env.List); 
+	if !ok {
+		fmt.Println("ERROR_NOT_A_LIST")
+		os.Exit(1)
+	}
+
+	if t.T == nil {
+		fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
+	}
+	
+	return env.Bool{}
 }
 
 func (v *TypeCheckVisitor) VisitPanic(ctx *parser.PanicContext) interface{} {
@@ -499,7 +812,10 @@ func (v *TypeCheckVisitor) VisitSucc(ctx *parser.SuccContext) interface{} {
 }
 
 func (v *TypeCheckVisitor) VisitInl(ctx *parser.InlContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Sum {
+		Left: ctx.GetExpr_().Accept(v).(env.Type),
+		Right: env.Any{},
+	}
 }
 
 func (v *TypeCheckVisitor) VisitGreaterThanOrEqual(ctx *parser.GreaterThanOrEqualContext) interface{} {
@@ -507,11 +823,45 @@ func (v *TypeCheckVisitor) VisitGreaterThanOrEqual(ctx *parser.GreaterThanOrEqua
 }
 
 func (v *TypeCheckVisitor) VisitInr(ctx *parser.InrContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Sum {
+		Left: env.Any{},
+		Right: ctx.GetExpr_().Accept(v).(env.Type),
+	}
 }
 
 func (v *TypeCheckVisitor) VisitMatch(ctx *parser.MatchContext) interface{} {
-	return v.VisitChildren(ctx)
+	// fmt.Printf("%T\n", ctx.GetExpr_())
+
+	v.env.Push()
+	v.env.Put("-1", ctx.GetExpr_().Accept(v).(env.Type))
+
+	cases := ctx.GetCases()
+
+	if len(cases) <= 0 {
+		fmt.Println("ERROR_ILLEGAL_EMPTY_MATCHING")
+		os.Exit(1)
+	}
+
+
+	buff := v.patterns
+	v.patterns = make(map[string]bool)
+	// v.GeneratePatternOptions(ctx.GetExpr_().Accept(v))
+
+	// t := cases[0].Accept(v).(env.Type)
+
+	// for _, val := range ctx.GetCases() {
+	// 	fmt.Printf("%T %T\n", val.GetPattern_(), val.GetExpr_())
+	// 	val.GetPattern_().Accept(v)
+	// }
+
+	for i := 0; i < len(cases); i++ {
+		// fmt.Println(v.env.Check("0").Type(), cases[i].Accept(v).(env.Type).Type())
+		TypeCheck(v.env.Check("0"), cases[i].Accept(v), "strictSum")
+	}
+
+	v.patterns = buff
+	v.env.Pop()
+	return v.env.Check("0")
 }
 
 func (v *TypeCheckVisitor) VisitLogicNot(ctx *parser.LogicNotContext) interface{} {
@@ -523,7 +873,19 @@ func (v *TypeCheckVisitor) VisitParenthesisedExpr(ctx *parser.ParenthesisedExprC
 }
 
 func (v *TypeCheckVisitor) VisitTail(ctx *parser.TailContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	t, ok := ctx.GetList().Accept(v).(env.List); 
+	if !ok {
+		fmt.Println("ERROR_NOT_A_LIST")
+		os.Exit(1)
+	}
+
+	if t.T == nil {
+		fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
+		os.Exit(1)
+	}
+	
+	return t
 }
 
 func (v *TypeCheckVisitor) VisitRecord(ctx *parser.RecordContext) interface{} {
@@ -555,7 +917,18 @@ func (v *TypeCheckVisitor) VisitPred(ctx *parser.PredContext) interface{} {
 }
 
 func (v *TypeCheckVisitor) VisitTypeAsc(ctx *parser.TypeAscContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	expected := ctx.GetType_().Accept(v).(env.Type)
+	given := ctx.GetExpr_().Accept(v).(env.Type)
+
+	TypeCheck(expected, given)
+
+	if val, ok := expected.(env.List); ok {
+		val.IsLiteral = false
+		return val
+	}
+
+	return expected
 }
 
 func (v *TypeCheckVisitor) VisitNatRec(ctx *parser.NatRecContext) interface{} {
@@ -669,6 +1042,10 @@ func (v *TypeCheckVisitor) VisitTuple(ctx *parser.TupleContext) interface{} {
 	types := make([]env.Type, len(t))
 	for i, val := range t {
 		types[i] = val.Accept(v).(env.Type)
+		if isAmbiguousSumType(types[i]) {
+			fmt.Println("ERROR_AMBIGUOUS_SUM_TYPE")
+			os.Exit(1)
+		}
 	}
 
 	return env.Tuple {
@@ -677,8 +1054,21 @@ func (v *TypeCheckVisitor) VisitTuple(ctx *parser.TupleContext) interface{} {
 }
 
 func (v *TypeCheckVisitor) VisitConsList(ctx *parser.ConsListContext) interface{} {
-	return v.VisitChildren(ctx)
+
+	t := ctx.GetHead().Accept(v).(env.Type)
+
+	TypeCheck(env.List{
+		T: t,		
+	}, ctx.GetTail().Accept(v).(env.Type))
+
+	return env.List{
+		T: t,
+		IsLiteral: true,
+	}
 }
+// if consTailType.elementType != undefined && consTailType.elementType != consHeadType {error} 
+
+
 
 func (v *TypeCheckVisitor) VisitPatternBinding(ctx *parser.PatternBindingContext) interface{} {
 	// TODO
@@ -692,7 +1082,24 @@ func (v *TypeCheckVisitor) VisitBinding(ctx *parser.BindingContext) interface{} 
 }
 
 func (v *TypeCheckVisitor) VisitMatchCase(ctx *parser.MatchCaseContext) interface{} {
-	return v.VisitChildren(ctx)
+
+	pt := ctx.GetPattern_()
+	expr := ctx.GetExpr_()
+
+	v.curPattern = ""
+
+	myPt := pt.Accept(v)
+
+	switch myPt := myPt.(type) {
+	default:
+		return expr.Accept(v)
+	case env.Binding:
+		temp := v.env.Check(myPt.Name)
+		v.env.Put(myPt.Name, myPt.T)
+		res := expr.Accept(v)
+		v.env.Put(myPt.Name, temp)
+		return res
+	}
 }
 
 func (v *TypeCheckVisitor) VisitPatternCons(ctx *parser.PatternConsContext) interface{} {
@@ -724,19 +1131,53 @@ func (v *TypeCheckVisitor) VisitPatternInt(ctx *parser.PatternIntContext) interf
 }
 
 func (v *TypeCheckVisitor) VisitPatternInr(ctx *parser.PatternInrContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	temp := v.env.Check("-1")
+
+	if _, ok := temp.(env.Sum); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+
+	v.env.Put("-1", temp.(env.Sum).Right)
+	
+	pattern := ctx.GetPattern_().Accept(v)	
+	v.env.Put("-1", temp)
+	// fmt.Printf("%T\n", ctx.GetPattern_())
+	return pattern
 }
 
 func (v *TypeCheckVisitor) VisitPatternTrue(ctx *parser.PatternTrueContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Bool{
+		Val: "true",
+	}
 }
 
 func (v *TypeCheckVisitor) VisitPatternInl(ctx *parser.PatternInlContext) interface{} {
-	return v.VisitChildren(ctx)
+	temp := v.env.Check("-1")
+
+	if _, ok := temp.(env.Sum); !ok {
+		fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		os.Exit(1)
+	}
+
+	v.env.Put("-1", temp.(env.Sum).Left)
+	
+	pattern := ctx.GetPattern_().Accept(v)	
+	v.env.Put("-1", temp)
+	// fmt.Printf("%T\n", ctx.GetPattern_())
+	return pattern
 }
 
 func (v *TypeCheckVisitor) VisitPatternVar(ctx *parser.PatternVarContext) interface{} {
 	// TODO
+	// fmt.Println(ctx.GetName().GetText())
+	if val := v.env.Check("-1"); val.Type() != "" {
+		return env.Binding {
+			Name: ctx.GetName().GetText(),
+			T: val,
+		}
+	}
 
 	return env.Binding {
 		Name: ctx.GetName().GetText(),
@@ -752,7 +1193,9 @@ func (v *TypeCheckVisitor) VisitPatternSucc(ctx *parser.PatternSuccContext) inte
 }
 
 func (v *TypeCheckVisitor) VisitPatternFalse(ctx *parser.PatternFalseContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Bool{
+		Val: "false",
+	}
 }
 
 func (v *TypeCheckVisitor) VisitPatternUnit(ctx *parser.PatternUnitContext) interface{} {
@@ -803,7 +1246,13 @@ func (v *TypeCheckVisitor) VisitTypeAuto(ctx *parser.TypeAutoContext) interface{
 }
 
 func (v *TypeCheckVisitor) VisitTypeSum(ctx *parser.TypeSumContext) interface{} {
-	return v.VisitChildren(ctx)
+	l := ctx.GetLeft().Accept(v).(env.Type)
+	r := ctx.GetRight().Accept(v).(env.Type)
+	// fmt.Printf("%T %T\n", l, r)
+	return env.Sum{
+		Left: l,
+		Right: r,
+	}
 }
 
 func (v *TypeCheckVisitor) VisitTypeVar(ctx *parser.TypeVarContext) interface{} {
@@ -862,7 +1311,9 @@ func (v *TypeCheckVisitor) VisitTypeRecord(ctx *parser.TypeRecordContext) interf
 }
 
 func (v *TypeCheckVisitor) VisitTypeList(ctx *parser.TypeListContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.List{
+		T: ctx.GetType_().Accept(v).(env.Type),
+	}
 }
 
 func (v *TypeCheckVisitor) VisitRecordFieldType(ctx *parser.RecordFieldTypeContext) interface{} {

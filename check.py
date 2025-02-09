@@ -31,11 +31,18 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
                 
                 go_process.stdin.close()
                 output = []
+                
+                flag = False
+                
                 for output_line in go_process.stdout:
                     if output_line.startswith("ERROR"):
+                        flag = True
                         # print(output_line.split(".")[0])
                         if output_line.split(".")[0].strip() not in errors:
                             print(f"{filename}: Expected one of {errors}, got {output_line.split(".")[0]}")
+                
+                if not flag and errors:
+                    print(f"{filename}: Expected one of {errors}, got []")
                 
                 for line in go_process.stderr:
                     output.append(line)
@@ -46,13 +53,18 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
                     print(f"Test: {filename}")
                     for line in output:
                         print(line)
+                # # elif errors:
+                #     print(f"Test: {filename}")
+                #     for line in errors:
+                #         print(f'this error was not found {line}')
                 
                 # os.remove(file_path) 
         
         # time.sleep(1)  # Avoid tight loops, adjust as needed
 
 if __name__ == "__main__":
-    folder_path = "./examples/public-tests/week-1/extra/public"  # Change this to the folder you want to monitor
+    # folder_path = "./examples/public-tests/week-2/main/public/"
+    folder_path = "./examples/tests-master/sum-types/ill-typed"  # Change this to the folder you want to monitor
     binary_path = "./stella"  # Change this to the binary you want to execute
     binary_args = ["typecheck"]  # Add any arguments needed for the binary
     go_binary_path = "./my-stella"
