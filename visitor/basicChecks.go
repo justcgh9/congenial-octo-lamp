@@ -19,6 +19,25 @@ func removeIfExists(mp map[string]bool, key string) {
 	}
 }
 
+func eraseLiterals(t interface{} ) env.Type {
+	switch t := t.(type) {
+	default:
+		return t.(env.Type)
+	case env.List:
+		t.IsLiteral = false
+		return t
+	case env.Tuple:
+		t.IsLiteral = false
+		return t
+	case env.Record:
+		t.IsLiteral = false
+		return t
+	case env.Reference:
+		t.IsLiteral = false
+		return t
+	}
+}
+
 
 // func getAllVariations(t interface{}, prefix string) []string {
 // 	switch t := t.(type) {

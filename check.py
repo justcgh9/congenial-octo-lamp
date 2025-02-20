@@ -63,7 +63,8 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
         # time.sleep(1)  # Avoid tight loops, adjust as needed
 
 if __name__ == "__main__":
-    # folder_path = "./examples/public-tests/week-2/main/public/"
+    # folder_path = "./examples/public-tests/week-1/main/public/"
+    folder_path = "./examples/tests-master/references/well-typed" 
     binary_path = "./stella"  # Change this to the binary you want to execute
     binary_args = ["typecheck"]  # Add any arguments needed for the binary
     go_binary_path = "./my-stella"

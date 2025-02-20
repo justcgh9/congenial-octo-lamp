@@ -1,5 +1,7 @@
 package env
 
+import "sort"
+
 type Type interface {
 	Type() string
 }
@@ -45,6 +47,7 @@ func (u Unit) Type() string {
 
 type Tuple struct {
 	Elements []Type
+	IsLiteral bool
 }
 
 func (t Tuple) Type() string {
@@ -102,4 +105,40 @@ func (l List) Type() string {
 		return "[]"
 	}
 	return "[" + l.T.Type() + "]"
+}
+
+type Record struct {
+	Elements map[string]Type
+	IsLiteral bool
+}
+
+func (r Record) Type () string {
+	ans := "{"
+
+	keys := make([]string, 0, len(r.Elements))
+	for key := range r.Elements {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ans += key + ":" + r.Elements[key].Type() + ","
+	}
+
+	if ans[len(ans) - 1] == ',' {
+		ans = ans[:(len(ans) - 1)]
+	}
+
+	ans += "}"
+	return ans
+}
+
+type Reference struct {
+	UnderlyingType Type
+	IsLiteral bool
+}
+
+func (r Reference) Type() string {
+	return "*" + r.UnderlyingType.Type()
 }

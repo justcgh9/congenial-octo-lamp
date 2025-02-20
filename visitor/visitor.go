@@ -42,16 +42,16 @@ func startsWith(s, t string) bool {
 func ascriptSumTypes(f, s env.Sum) env.Sum {
 	
 	fl, fok := f.Left.(env.Sum)
-	sl, sok := s.Left.(env.Sum)
-
-	if fok && sok {
+	sl, sok := s.Left.(env.Sum) 
+	
+	if fok && sok { 
 		fl.Left = ascriptSumTypes(fl, sl)
 	}
 
 	fr, fok := f.Right.(env.Sum)
 	sr, sok := s.Right.(env.Sum)
 
-	if fok && sok {
+	if fok && sok { 
 		fl.Right = ascriptSumTypes(fr, sr)
 	}
 
@@ -141,6 +141,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 			os.Exit(1)
 		}
 
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
 		ft, ok := given.(env.Func)
 
 		if !ok || !ft.IsAnonymous || ft.Return.Type() != ef.Return.Type() {
@@ -185,6 +205,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 			os.Exit(1)
 		}
 
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
 		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 		os.Exit(1)
 
@@ -199,6 +239,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 		if ok {
 			if val.IsLiteral {
 				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
 			} else {
 				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 			}
@@ -245,6 +305,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 			os.Exit(1)
 		}
 
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
 		et := exp.(env.Tuple)
 		tt, ok := given.(env.Tuple)
 
@@ -264,6 +344,79 @@ func TypeCheck(exp, given interface{}, args ...string) {
 
 		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 		os.Exit(1)
+	
+	case env.Record:
+		ft, ok := given.(env.Func)
+		if ok && ft.IsAnonymous {
+			fmt.Println("ERROR_UNEXPECTED_LAMBDA. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Tuple)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_TUPLE. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		val, ok := given.(env.List)
+		if ok {
+			if val.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		_, ok = given.(env.Sum)
+		if ok {
+			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		et := exp.(env.Record)
+		record, ok := given.(env.Record)
+		if !ok{
+			fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		expectedLength := len(et.Elements)
+		givenLength := len(record.Elements)
+
+		if expectedLength < givenLength {
+			fmt.Println("ERROR_UNEXPECTED_RECORD_FIELDS")
+			os.Exit(1)
+		}
+
+		if expectedLength > givenLength {
+			fmt.Println("ERROR_MISSING_RECORD_FIELDS")
+			os.Exit(1)
+		}
+
+		for key, value := range et.Elements {
+			givenElement, ok := record.Elements[key]
+			if !ok {
+				fmt.Println("ERROR_MISSING_RECORD_FIELDS")
+				os.Exit(1)
+			}
+
+			TypeCheck(value, givenElement)
+		}
+
+		fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+		os.Exit(1)
+	
 		
 	case env.Unit:
 		ft, ok := given.(env.Func)
@@ -282,6 +435,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 		if ok {
 			if val.IsLiteral {
 				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
 			} else {
 				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 			}
@@ -316,6 +489,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 		if ok {
 			if val.IsLiteral {
 				fmt.Println("ERROR_UNEXPECTED_LIST. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
 			} else {
 				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
 			}
@@ -372,6 +565,26 @@ func TypeCheck(exp, given interface{}, args ...string) {
 		_, ok = given.(env.Sum)
 		if ok {
 			fmt.Println("ERROR_UNEXPECTED_INJECTION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			os.Exit(1)
+		}
+
+		record, ok := given.(env.Record)
+		if ok {
+			if record.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_RECORD. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
+			os.Exit(1)
+		}
+
+		reference, ok := given.(env.Reference)
+		if ok {
+			if reference.IsLiteral {
+				fmt.Println("ERROR_UNEXPECTED_MEMORY_ADDRESS. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())				
+			} else {
+				fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION. Expected ", exp.(env.Type).Type(), " , given ", given.(env.Type).Type())
+			}
 			os.Exit(1)
 		}
 
@@ -566,7 +779,21 @@ func (v *TypeCheckVisitor) VisitLessThan(ctx *parser.LessThanContext) interface{
 }
 
 func (v *TypeCheckVisitor) VisitDotRecord(ctx *parser.DotRecordContext) interface{} {
-	return v.VisitChildren(ctx)
+
+	label := ctx.GetLabel().GetText()
+	record, ok := ctx.GetExpr_().Accept(v).(env.Record)
+	if !ok {
+		fmt.Println("ERROR_NOT_A_RECORD")
+		os.Exit(1)
+	}
+
+	item, ok := record.Elements[label]
+	if !ok {
+		fmt.Println("ERROR_UNEXPECTED_FIELD_ACCESS")
+		os.Exit(1)
+	}
+
+	return item
 }
 
 func (v *TypeCheckVisitor) VisitGreaterThan(ctx *parser.GreaterThanContext) interface{} {
@@ -586,7 +813,10 @@ func (v *TypeCheckVisitor) VisitMultiply(ctx *parser.MultiplyContext) interface{
 }
 
 func (v *TypeCheckVisitor) VisitConstMemory(ctx *parser.ConstMemoryContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Reference{
+		UnderlyingType: env.Any{},
+		IsLiteral: true,
+	}
 }
 
 func (v *TypeCheckVisitor) VisitList(ctx *parser.ListContext) interface{} {
@@ -646,6 +876,10 @@ func (v *TypeCheckVisitor) VisitNotEqual(ctx *parser.NotEqualContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+/*
+
+*/
+
 func (v *TypeCheckVisitor) VisitConstUnit(ctx *parser.ConstUnitContext) interface{} {
 	//TODO
 
@@ -653,7 +887,9 @@ func (v *TypeCheckVisitor) VisitConstUnit(ctx *parser.ConstUnitContext) interfac
 }
 
 func (v *TypeCheckVisitor) VisitSequence(ctx *parser.SequenceContext) interface{} {
-	return v.VisitChildren(ctx)
+	// fmt.Printf("%T %T\n", ctx.GetExpr1(), ctx.GetExpr2())
+	TypeCheck(env.Unit{}, ctx.GetExpr1().Accept(v))
+	return ctx.GetExpr2().Accept(v)
 }
 
 func (v *TypeCheckVisitor) VisitConstFalse(ctx *parser.ConstFalseContext) interface{} {
@@ -783,7 +1019,13 @@ func (v *TypeCheckVisitor) VisitApplication(ctx *parser.ApplicationContext) inte
 }
 
 func (v *TypeCheckVisitor) VisitDeref(ctx *parser.DerefContext) interface{} {
-	return v.VisitChildren(ctx)
+	ref, ok := ctx.GetExpr_().Accept(v).(env.Reference)
+	if !ok {
+		fmt.Println("ERROR_NOT_A_REFERENCE")
+		os.Exit(1)
+	}
+
+	return ref.UnderlyingType	
 }
 
 func (v *TypeCheckVisitor) VisitIsEmpty(ctx *parser.IsEmptyContext) interface{} {
@@ -796,6 +1038,7 @@ func (v *TypeCheckVisitor) VisitIsEmpty(ctx *parser.IsEmptyContext) interface{} 
 
 	if t.T == nil {
 		fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
+		os.Exit(1)
 	}
 	
 	return env.Bool{}
@@ -875,7 +1118,7 @@ func (v *TypeCheckVisitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 	for k, v := range v.patterns{
 		if !v {
 			fmt.Println("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS. Key", k, "is not matched")
-			os.Exit(0)
+			os.Exit(1)
 		}
 	}
 
@@ -904,12 +1147,31 @@ func (v *TypeCheckVisitor) VisitTail(ctx *parser.TailContext) interface{} {
 		fmt.Println("ERROR_AMBIGUOUS_LIST_TYPE")
 		os.Exit(1)
 	}
-	
+	// t.IsLiteral = false
 	return t
 }
 
 func (v *TypeCheckVisitor) VisitRecord(ctx *parser.RecordContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	record := env.Record {
+		Elements: make(map[string]env.Type, len(ctx.GetBindings())),
+		IsLiteral: true,
+	}
+
+	for _, val := range ctx.GetBindings() {
+		name := val.GetName().GetText()
+		fieldType := val.GetRhs().Accept(v).(env.Type)
+		funcType, ok := fieldType.(env.Func)
+		if ok {
+			funcType.IsAnonymous = false
+			record.Elements[name] = funcType
+			continue	
+		}
+		fieldType = eraseLiterals(fieldType)
+		record.Elements[name] = fieldType
+	}
+	
+	return record
 }
 
 func (v *TypeCheckVisitor) VisitLogicAnd(ctx *parser.LogicAndContext) interface{} {
@@ -943,10 +1205,7 @@ func (v *TypeCheckVisitor) VisitTypeAsc(ctx *parser.TypeAscContext) interface{} 
 
 	TypeCheck(expected, given)
 
-	if val, ok := expected.(env.List); ok {
-		val.IsLiteral = false
-		return val
-	}
+	eraseLiterals(expected)
 
 	return expected
 }
@@ -1005,7 +1264,9 @@ func (v *TypeCheckVisitor) VisitUnfold(ctx *parser.UnfoldContext) interface{} {
 }
 
 func (v *TypeCheckVisitor) VisitRef(ctx *parser.RefContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Reference{
+		UnderlyingType: ctx.GetExpr_().Accept(v).(env.Type),
+	}
 }
 
 func (v *TypeCheckVisitor) VisitDotTuple(ctx *parser.DotTupleContext) interface{} {
@@ -1031,7 +1292,20 @@ func (v *TypeCheckVisitor) VisitDotTuple(ctx *parser.DotTupleContext) interface{
 }
 
 func (v *TypeCheckVisitor) VisitFix(ctx *parser.FixContext) interface{} {
-	return v.VisitChildren(ctx)
+	funcType, ok := ctx.GetExpr_().Accept(v).(env.Func)
+	if !ok {
+		fmt.Println("ERROR_NOT_A_FUNCTION")
+		os.Exit(1)
+	}
+
+	if len(funcType.Args) != 1 {
+		fmt.Println("ERROR_INCORRECT_NUMBER_OF_ARGUMENTS")
+		os.Exit(1)
+	}
+
+	TypeCheck(funcType.Args[0], funcType.Return)
+
+	return funcType.Return
 }
 
 func (v *TypeCheckVisitor) VisitLet(ctx *parser.LetContext) interface{} {
@@ -1053,7 +1327,16 @@ func (v *TypeCheckVisitor) VisitLet(ctx *parser.LetContext) interface{} {
 }
 
 func (v *TypeCheckVisitor) VisitAssign(ctx *parser.AssignContext) interface{} {
-	return v.VisitChildren(ctx)
+
+	ref, ok := ctx.GetLhs().Accept(v).(env.Reference)
+	if !ok {
+		fmt.Println("ERROR_NOT_A_REFERENCE")
+		os.Exit(1)
+	}
+
+	TypeCheck(ref.UnderlyingType, ctx.GetRhs().Accept(v))
+
+	return env.Unit{}
 }
 
 func (v *TypeCheckVisitor) VisitTuple(ctx *parser.TupleContext) interface{} {
@@ -1070,6 +1353,7 @@ func (v *TypeCheckVisitor) VisitTuple(ctx *parser.TupleContext) interface{} {
 
 	return env.Tuple {
 		Elements: types,
+		IsLiteral: true,
 	}
 }
 
@@ -1368,7 +1652,9 @@ func (v *TypeCheckVisitor) VisitTypeBool(ctx *parser.TypeBoolContext) interface{
 }
 
 func (v *TypeCheckVisitor) VisitTypeRef(ctx *parser.TypeRefContext) interface{} {
-	return v.VisitChildren(ctx)
+	return env.Reference{
+		UnderlyingType: ctx.GetType_().Accept(v).(env.Type),
+	}
 }
 
 func (v *TypeCheckVisitor) VisitTypeRec(ctx *parser.TypeRecContext) interface{} {
@@ -1441,7 +1727,19 @@ func (v *TypeCheckVisitor) VisitTypeForAll(ctx *parser.TypeForAllContext) interf
 }
 
 func (v *TypeCheckVisitor) VisitTypeRecord(ctx *parser.TypeRecordContext) interface{} {
-	return v.VisitChildren(ctx)
+
+	record := env.Record{
+		Elements: make(map[string]env.Type, len(ctx.GetFieldTypes())),
+	}
+
+	for _, val := range ctx.GetFieldTypes() {
+		name := val.GetLabel().GetText()
+		fieldType := val.GetType_().Accept(v).(env.Type)
+
+		record.Elements[name] = fieldType
+	}
+
+	return record
 }
 
 func (v *TypeCheckVisitor) VisitTypeList(ctx *parser.TypeListContext) interface{} {
