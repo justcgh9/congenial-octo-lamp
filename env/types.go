@@ -140,5 +140,14 @@ type Reference struct {
 }
 
 func (r Reference) Type() string {
-	return "*" + r.UnderlyingType.Type()
+	return "&" + r.UnderlyingType.Type()
+}
+
+type Throw struct {
+	UnderlyingType Type
+	// IsLiteral bool
+}
+
+func (t Throw) Type() string {
+	return "throw(" + t.UnderlyingType.Type() + ")"
 }

@@ -51,8 +51,8 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
                 status = go_process.returncode
                 if status > 1:
                     print(f"Test: {filename}")
-                    for line in output:
-                        print(line)
+                    # for line in output:
+                    #     print(line)
                 # # elif errors:
                 #     print(f"Test: {filename}")
                 #     for line in errors:
@@ -65,7 +65,8 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
 if __name__ == "__main__":
     # folder_path = "./examples/public-tests/week-1/main/public/"
     # folder_path = "./examples/tests-master/references/well-typed" 
-    folder_path = "../public-tests/week-3/main/secret/"
+    # folder_path = "../public-tests/week-3/main/secret/"
+    folder_path = "../public-tests/week-5/main/public/"
     binary_path = "./stella"  # Change this to the binary you want to execute
     binary_args = ["typecheck"]  # Add any arguments needed for the binary
     go_binary_path = "./my-stella"
