@@ -12,6 +12,11 @@ func isAny(arg interface{}) bool {
 	return ok
 }
 
+func err(str string) {
+	fmt.Println(str)
+	os.Exit(1)
+}
+
 func addIfExists(mp map[string]bool, key string) {
 	if _, ok := mp[key]; ok {
 		mp[key] = true

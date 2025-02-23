@@ -33,7 +33,8 @@ func main() {
 	stream := antlr.NewCommonTokenStream(lexer, 0)
 	p := parser.NewStellaParser(stream)
 
-	v := &visitor.TypeCheckVisitor{}
+	var v parser.StellaParserVisitor
+	v = &visitor.Visitor{}
 	tree := p.Program()
 	v.VisitProgram(tree.(*parser.ProgramContext))
 

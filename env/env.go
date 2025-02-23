@@ -1,5 +1,7 @@
 package env
 
+import "fmt"
+
 type Env struct {
 	elements Stack[map[string]Type]
 }
@@ -29,4 +31,12 @@ func (e *Env) Check(n string) Type {
 
 func (e *Env) Pop() {
 	_, _ = e.elements.Pop()
+}
+
+func (e *Env) Print () {
+	// e.elements.Pop()
+	mp, _ := e.elements.Peek()
+	for k, v := range mp {
+		fmt.Println(k ,v.Type())
+	}
 }

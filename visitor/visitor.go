@@ -1549,12 +1549,6 @@ func (v *TypeCheckVisitor) VisitNatRec(ctx *parser.NatRecContext) interface{} {
 
 	TypeCheck(env.Nat{}, ctx.GetN().Accept(v))
 
-	
-	// _, ok := ctx.GetN().Accept(v).(env.Nat)
-	// if !ok {
-	// 	fmt.Println("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
-	// 	os.Exit(1)
-	// }
 	v.checking = prev
 	v.checkingForType = prevType
 
@@ -2035,7 +2029,6 @@ func (v *TypeCheckVisitor) VisitTypeTop(ctx *parser.TypeTopContext) interface{} 
 
 func (v *TypeCheckVisitor) VisitTypeBool(ctx *parser.TypeBoolContext) interface{} {
 	//TODO
-
 	return env.Bool{}
 }
 
