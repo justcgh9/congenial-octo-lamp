@@ -151,3 +151,30 @@ type Throw struct {
 func (t Throw) Type() string {
 	return "throw(" + t.UnderlyingType.Type() + ")"
 }
+
+type Variant struct {
+	Elements map[string]Type
+	IsLiteral bool
+}
+
+func (r Variant) Type () string {
+	ans := "{"
+
+	keys := make([]string, 0, len(r.Elements))
+	for key := range r.Elements {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ans += key + ":" + r.Elements[key].Type() + ","
+	}
+
+	if ans[len(ans) - 1] == ',' {
+		ans = ans[:(len(ans) - 1)]
+	}
+
+	ans += "}"
+	return ans
+}

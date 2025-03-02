@@ -12,7 +12,12 @@ func isAny(arg interface{}) bool {
 	return ok
 }
 
-func err(str string) {
+func (v *Visitor) err(str string) {
+
+	if v.subtyping != 0 && str == "ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION" {
+		str = "ERROR_UNEXPECTED_SUBTYPE"
+	}
+
 	fmt.Println(str)
 	os.Exit(1)
 }

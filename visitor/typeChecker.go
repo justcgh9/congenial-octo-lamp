@@ -21,6 +21,7 @@ type Visitor struct {
 	checking        bool			// checking or inferring the type
 	checkingForType env.Type		// Type we are checking for
 	matchType		env.Type
+	subtyping 		int
 }
 
 func (v *Visitor) Visit(tree antlr.ParseTree) interface{} {
@@ -38,7 +39,7 @@ func (v *Visitor) VisitAbstraction(ctx *parser.AbstractionContext) interface{} {
 
 		if  !ok {
 			fmt.Println(v.checkingForType.Type())
-			err("ERROR_UNEXPECTED_LAMBDA")
+			v.err("ERROR_UNEXPECTED_LAMBDA")
 		}
 
 		for i, param := range ctx.GetParamDecls() {
@@ -80,7 +81,7 @@ func (v *Visitor) VisitApplication(ctx *parser.ApplicationContext) interface{} {
 	v.checking = false
 	fn, ok := ctx.GetFun().Accept(v).(env.Func)
 	if !ok {
-		err("ERROR_NOT_A_FUNCTION")
+		v.err("ERROR_NOT_A_FUNCTION")
 	}
 
 	for i, param := range fn.Args {
@@ -93,7 +94,10 @@ func (v *Visitor) VisitApplication(ctx *parser.ApplicationContext) interface{} {
 	v.checking, v.checkingForType = ch, ty
 
 	if ch {
-		TypeCheck(v.checkingForType, fn.Return)
+		// TypeCheck(v.checkingForType, fn.Return)
+		if v.checkingForType.Type() != fn.Return.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 		return v.checkingForType
 	}
 
@@ -106,7 +110,7 @@ func (v *Visitor) VisitAssign(ctx *parser.AssignContext) interface{} {
 	v.checking = false
 	lhs, ok := ctx.GetLhs().Accept(v).(env.Reference)
 	if !ok {
-		err("ERROR_NOT_A_REFERENCE")
+		v.err("ERROR_NOT_A_REFERENCE")
 	}
 
 	v.checking = true
@@ -129,7 +133,7 @@ func (v *Visitor) VisitConsList(ctx *parser.ConsListContext) interface{} {
 	if v.checking {
 		lst, ok := v.checkingForType.(env.List)
 		if !ok {
-			err("ERROR_UNEXPECTED_LIST")
+			v.err("ERROR_UNEXPECTED_LIST")
 		}
 		v.checkingForType = lst.T
 		ctx.GetHead().Accept(v)
@@ -160,7 +164,10 @@ func (v *Visitor) VisitConstFalse(ctx *parser.ConstFalseContext) interface{} {
 	if !v.checking {
 		return env.Bool{}
 	} else {
-		TypeCheck(v.checkingForType, env.Bool{})
+		// TypeCheck(v.checkingForType, env.Bool{})
+		if v.checkingForType.Type() != (env.Bool{}).Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	return env.Bool{}
@@ -170,7 +177,10 @@ func (v *Visitor) VisitConstInt(ctx *parser.ConstIntContext) interface{} {
 	if !v.checking {
 		return env.Nat{}
 	} else {
-		TypeCheck(v.checkingForType, env.Nat{})
+		// TypeCheck(v.checkingForType, env.Nat{})
+		if v.checkingForType.Type() != (env.Nat{}).Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	return env.Nat{}
@@ -180,13 +190,13 @@ func (v *Visitor) VisitConstMemory(ctx *parser.ConstMemoryContext) interface{} {
 	if v.checking {
 		t, ok := v.checkingForType.(env.Reference)
 		if !ok {
-			err("ERROR_UNEXPECTED_MEMORY_ADDRESS")
+			v.err("ERROR_UNEXPECTED_MEMORY_ADDRESS")
 		}
 
 		return t
 	}
 
-	err("ERROR_AMBIGUOUS_REFERENCE_TYPE")
+	v.err("ERROR_AMBIGUOUS_REFERENCE_TYPE")
 	return nil
 }
 
@@ -194,7 +204,10 @@ func (v *Visitor) VisitConstTrue(ctx *parser.ConstTrueContext) interface{} {
 	if !v.checking {
 		return env.Bool{}
 	} else {
-		TypeCheck(v.checkingForType, env.Bool{})
+		// TypeCheck(v.checkingForType, env.Bool{})
+		if v.checkingForType.Type() != (env.Bool{}).Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	return env.Bool{}
@@ -204,7 +217,10 @@ func (v *Visitor) VisitConstUnit(ctx *parser.ConstUnitContext) interface{} {
 	if !v.checking {
 		return env.Unit{}
 	} else {
-		TypeCheck(v.checkingForType, env.Unit{})
+		// TypeCheck(v.checkingForType, env.Unit{})
+		if v.checkingForType.Type() != (env.Unit{}).Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	return env.Unit{}
@@ -294,7 +310,7 @@ func (v *Visitor) VisitDeref(ctx *parser.DerefContext) interface{} {
 
 	t, ok := ctx.GetExpr_().Accept(v).(env.Reference)
 	if !ok {
-		err("ERROR_NOT_A_REFERENCE")
+		v.err("ERROR_NOT_A_REFERENCE")
 	}
 
 	return t.UnderlyingType
@@ -312,16 +328,19 @@ func (v *Visitor) VisitDotRecord(ctx *parser.DotRecordContext) interface{} {
 	v.checking = false
 	record, ok := ctx.GetExpr_().Accept(v).(env.Record)
 	if !ok {
-		err("ERROR_NOT_A_RECORD")
+		v.err("ERROR_NOT_A_RECORD")
 	}
 	
 	mty, ok := record.Elements[ctx.GetLabel().GetText()]
 	if !ok {
-		err("ERROR_UNEXPECTED_FIELD_ACCESS")
+		v.err("ERROR_UNEXPECTED_FIELD_ACCESS")
 	}
 
 	if ch {
-		TypeCheck(ty, mty)
+		// TypeCheck(ty, mty)
+		if ty.Type() != mty.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 		return ty
 	}
 
@@ -336,17 +355,20 @@ func (v *Visitor) VisitDotTuple(ctx *parser.DotTupleContext) interface{} {
 	v.checking = false
 	tuple, ok := ctx.GetExpr_().Accept(v).(env.Tuple)
 	if !ok {
-		err("ERROR_NOT_A_TUPLE")
+		v.err("ERROR_NOT_A_TUPLE")
 	}
 	
 	idx, _ := strconv.Atoi(ctx.GetIndex().GetText())
 
 	if idx > len(tuple.Elements) || idx < 1{
-		err("ERROR_TUPLE_INDEX_OUT_OF_BOUNDS")
+		v.err("ERROR_TUPLE_INDEX_OUT_OF_BOUNDS")
 	}
 
 	if ch {
-		TypeCheck(ty, tuple.Elements[idx - 1])
+		// TypeCheck(ty, tuple.Elements[idx - 1])
+		if ty.Type() != tuple.Elements[idx - 1].Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 		return ty
 	}
 
@@ -378,14 +400,17 @@ func (v *Visitor) VisitFix(ctx *parser.FixContext) interface{} {
 
 	t, ok := ctx.GetExpr_().Accept(v).(env.Func)
 	if !ok {
-		err("ERROR_NOT_A_FUNCTION")
+		v.err("ERROR_NOT_A_FUNCTION")
 	}
 
 	if len(t.Args) != 1 {
-		err("ERROR_INCORRECT_NUMBER_OF_ARGUMENTS")
+		v.err("ERROR_INCORRECT_NUMBER_OF_ARGUMENTS")
 	}
 
-	TypeCheck(t.Args[0], t.Return)
+	// TypeCheck(t.Args[0], t.Return)
+	if t.Args[0].Type() != t.Return.Type() {
+		v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	}
 
 	return t.Return
 }
@@ -406,14 +431,21 @@ func (v *Visitor) VisitHead(ctx *parser.HeadContext) interface{} {
 	ch, ty := v.checking, v.checkingForType
 	defer func() {v.checking, v.checkingForType = ch, ty} ()
 
-	v.checking = false
+	if v.checking {
+		v.checkingForType = env.List{
+			T: v.checkingForType,
+		}
+	}
 	t, ok := ctx.GetList().Accept(v).(env.List)
 	if !ok {
-		err("ERROR_NOT_A_LIST")
+		v.err("ERROR_NOT_A_LIST")
 	}
 
 	if ch {
-		TypeCheck(t.T, ty)
+		// TypeCheck(t.T, ty)
+		if t.T.Type() != ty.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 		return ty
 	}
 
@@ -439,21 +471,27 @@ func (v *Visitor) VisitIf(ctx *parser.IfContext) interface{} {
 		return v.checkingForType
 	}
 
-	t, e := ctx.GetThenExpr().Accept(v), ctx.GetElseExpr().Accept(v)
+	t := ctx.GetThenExpr().Accept(v).(env.Type)
+	
+	v.checking = true
+	v.checkingForType = t
+	
+	ctx.GetElseExpr().Accept(v)
 
-	TypeCheck(t, e)
-
+	v.checkingForType = ty
+	v.checking = false
+	
 	return t
 }
 
 func (v *Visitor) VisitInl(ctx *parser.InlContext) interface{} {
 	if !v.checking {
-		err("ERROR_AMBIGUOUS_SUM_TYPE")
+		v.err("ERROR_AMBIGUOUS_SUM_TYPE")
 	}
 
 	t, ok := v.checkingForType.(env.Sum)
 	if !ok {
-		err("ERROR_UNEXPECTED_INJECTION")
+		v.err("ERROR_UNEXPECTED_INJECTION")
 	}
 
 	defer func(ch bool, ty env.Type) {v.checking, v.checkingForType = ch, ty} (v.checking, v.checkingForType)
@@ -469,12 +507,12 @@ func (v *Visitor) VisitInlineAnnotation(ctx *parser.InlineAnnotationContext) int
 
 func (v *Visitor) VisitInr(ctx *parser.InrContext) interface{} {
 	if !v.checking {
-		err("ERROR_AMBIGUOUS_SUM_TYPE")
+		v.err("ERROR_AMBIGUOUS_SUM_TYPE")
 	}
 
 	t, ok := v.checkingForType.(env.Sum)
 	if !ok {
-		err("ERROR_UNEXPECTED_INJECTION")
+		v.err("ERROR_UNEXPECTED_INJECTION")
 	}
 	
 	defer func(ch bool, ty env.Type) {v.checking, v.checkingForType = ch, ty} (v.checking, v.checkingForType)
@@ -491,11 +529,14 @@ func (v *Visitor) VisitIsEmpty(ctx *parser.IsEmptyContext) interface{} {
 	v.checking = false
 	_, ok := ctx.GetList().Accept(v).(env.List)
 	if !ok {
-		err("ERROR_NOT_A_LIST")
+		v.err("ERROR_NOT_A_LIST")
 	}
 
 	if ch {
-		TypeCheck(env.Bool{}, ty)
+		// TypeCheck(env.Bool{}, ty)
+		if (env.Bool{}).Type() != ty.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 		return ty
 	}
 
@@ -515,6 +556,9 @@ func (v *Visitor) VisitIsZero(ctx *parser.IsZeroContext) interface{} {
 	
 	if v.checking {
 		TypeCheck(v.checkingForType, env.Bool{})
+		if v.checkingForType.Type() != (env.Bool{}).Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 	
 	return env.Bool{}
@@ -568,7 +612,12 @@ func (v *Visitor) VisitList(ctx *parser.ListContext) interface{} {
 
 		lst, ok := v.checkingForType.(env.List)
 		if !ok {
-			err("ERROR_UNEXPECTED_LIST")
+
+			if len(ctx.GetExprs()) <= 0 {
+				v.err("ERROR_AMBIGUOUS_LIST_TYPE")
+			}
+
+			v.err("ERROR_UNEXPECTED_LIST")
 		}
 
 		for _, expr := range ctx.GetExprs() {
@@ -582,14 +631,22 @@ func (v *Visitor) VisitList(ctx *parser.ListContext) interface{} {
 	}
 
 	if len(ctx.GetExprs()) <= 0 {
-		err("ERROR_AMBIGUOUS_LIST_TYPE")
+		v.err("ERROR_AMBIGUOUS_LIST_TYPE")
 	}
 
 	t := ctx.GetExprs()[0].Accept(v).(env.Type)
 
+	defer func(t env.Type) {v.checkingForType = t} (v.checkingForType)
+	
+	v.checking = true
+	v.checkingForType = t
+
 	for _, expr := range ctx.GetExprs() {
-		TypeCheck(t, expr.Accept(v))
+		// TypeCheck(t, expr.Accept(v))
+		expr.Accept(v)
 	}
+
+	v.checking = false
 
 	return env.List{
 		T: t,
@@ -616,7 +673,7 @@ func (v *Visitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 	defer func(mty env.Type) {v.checking, v.checkingForType, v.matchType = ch, ty, mty} (v.matchType)
 	
 	if len(ctx.GetCases()) <= 0 {
-		err("ERROR_ILLEGAL_EMPTY_MATCHING")
+		v.err("ERROR_ILLEGAL_EMPTY_MATCHING")
 	}
 	v.checking = false
 	matchType := ctx.GetExpr_().Accept(v).(env.Type)
@@ -635,7 +692,7 @@ func (v *Visitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 	}
 
 	if _, ok := matchType.(env.Sum); ok && ! (inlFlag && inrFlag)  {
-		err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")
+		v.err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")
 	}
 
 	return ty
@@ -643,7 +700,7 @@ func (v *Visitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 
 func (v *Visitor) VisitMatchCase(ctx *parser.MatchCaseContext) interface{} {
 	if !v.checking{
-		err("strange match case")
+		v.err("strange match case")
 	}
 	
 	v.env.Push()
@@ -651,10 +708,10 @@ func (v *Visitor) VisitMatchCase(ctx *parser.MatchCaseContext) interface{} {
 
 
 	ctx.GetPattern_().Accept(v)
-	v.checking = false
-	t := ctx.GetExpr_().Accept(v)
-	TypeCheck(v.checkingForType, t)
-	v.checking = true
+	// v.checking = false
+	ctx.GetExpr_().Accept(v)
+	// TypeCheck(v.checkingForType, t)
+	// v.checking = true
 
 	return v.checkingForType
 }
@@ -690,7 +747,10 @@ func (v *Visitor) VisitNatRec(ctx *parser.NatRecContext) interface{} {
 	v.checkingForType = ty
 	
 	if v.checking {
-		TypeCheck(v.checkingForType, z)
+		// TypeCheck(v.checkingForType, z)
+		if v.checkingForType.Type() != z.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	return z
@@ -705,7 +765,7 @@ func (v *Visitor) VisitPanic(ctx *parser.PanicContext) interface{} {
 		return v.checkingForType
 	}
 
-	err("ERROR_AMBIGUOUS_PANIC_TYPE")
+	v.err("ERROR_AMBIGUOUS_PANIC_TYPE")
 	return nil
 }
 
@@ -719,7 +779,7 @@ func (v *Visitor) VisitParamDecl(ctx *parser.ParamDeclContext) interface{} {
 	v.checking = ch
 
 	if v.checking && ty.Type() != v.checkingForType.Type() {
-		err("ERROR_UNEXPECTED_TYPE_FOR_PARAMETER")
+		v.err("ERROR_UNEXPECTED_TYPE_FOR_PARAMETER")
 	}
 
 	v.env.Put(nm, ty)
@@ -742,7 +802,7 @@ func (v *Visitor) VisitPatternAsc(ctx *parser.PatternAscContext) interface{} {
 func (v *Visitor) VisitPatternBinding(ctx *parser.PatternBindingContext) interface{} {
 	
 	if v.checking {
-		TypeCheck(v.checkingForType, ctx.GetRhs().Accept(v))
+		ctx.GetRhs().Accept(v)
 		ctx.GetPat().Accept(v)
 		return v.checkingForType
 	}
@@ -772,7 +832,7 @@ func (v *Visitor) VisitPatternFalse(ctx *parser.PatternFalseContext) interface{}
 func (v *Visitor) VisitPatternInl(ctx *parser.PatternInlContext) interface{} {
 	t, ok := v.matchType.(env.Sum)
 	if !ok {
-		err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
 	}
 
 	defer func(t env.Type, c bool) {v.matchType, v.checking = t, c} (v.matchType, v.checking)
@@ -788,7 +848,7 @@ func (v *Visitor) VisitPatternInr(ctx *parser.PatternInrContext) interface{} {
 	t, ok := v.matchType.(env.Sum)
 	if !ok {
 		fmt.Printf("%T\n", v.matchType)
-		err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
 	}
 
 	defer func(t env.Type, c bool) {v.matchType, v.checking = t, c} (v.matchType, v.checking)
@@ -839,7 +899,20 @@ func (v *Visitor) VisitPatternVar(ctx *parser.PatternVarContext) interface{} {
 }
 
 func (v *Visitor) VisitPatternVariant(ctx *parser.PatternVariantContext) interface{} {
-	panic("unimplemented")
+	t, ok := v.matchType.(env.Variant)
+	if !ok {
+		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+	}
+
+	defer func(t env.Type, c bool) {v.matchType, v.checking = t, c} (v.matchType, v.checking)
+	v.checking = false
+
+	v.matchType, ok = t.Elements[ctx.GetLabel().GetText()]
+	if !ok {
+		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+	}
+	ctx.GetPattern_().Accept(v)
+	return nil
 }
 
 func (v *Visitor) VisitPred(ctx *parser.PredContext) interface{} {
@@ -850,6 +923,10 @@ func (v *Visitor) VisitProgram(ctx *parser.ProgramContext) interface{} {
 	v.env.Push()
 
 	defer v.env.Pop()
+	// ctx.Get_extension().GetText()
+	if len(ctx.GetExtensions()) > 0 && contains(ctx.Get_extension().GetText(), "structural-subtyping") {
+		v.subtyping = 1
+	}
 
 	for _, decl := range ctx.GetDecls() {
 		v.env.Push()
@@ -897,24 +974,57 @@ func (v *Visitor) VisitRecord(ctx *parser.RecordContext) interface{} {
 		v.checkingForType = t
 	} (v.checking, v.checkingForType)
 
-	if v.checking {
+	if v.checking && v.subtyping == 1 {
 		record, ok := v.checkingForType.(env.Record)
 		if !ok {
-			err("ERROR_UNEXPECTED_RECORD")
+			v.err("ERROR_UNEXPECTED_RECORD")
 		}
 
-		if len(record.Elements) > len(ctx.GetBindings()) {
-			err("ERROR_MISSING_RECORD_FIELDS")
+		labels := make([]string, len(ctx.GetBindings()))
+		for i, binding := range ctx.GetBindings() {
+			labels[i] = binding.GetName().GetText()
 		}
 
-		if len(record.Elements) < len(ctx.GetBindings()) {
-			err("ERROR_UNEXPECTED_RECORD_FIELDS")
+		for key, _ := range record.Elements {
+			if !contains(key, labels...) {
+				v.err("ERROR_MISSING_RECORD_FIELDS")
+			}
 		}
 
 		for _, binding := range ctx.GetBindings() {
 			t, ok := record.Elements[binding.GetName().GetText()]
 			if !ok {
-				err("ERROR_UNEXPECTED_RECORD_FIELDS")
+				v.checking = false
+				binding.GetRhs().Accept(v)
+				v.checking = true
+				continue
+			}
+
+			v.checkingForType = t
+			binding.GetRhs().Accept(v)
+		}
+
+		return record
+	}
+
+	if v.checking {
+		record, ok := v.checkingForType.(env.Record)
+		if !ok {
+			v.err("ERROR_UNEXPECTED_RECORD")
+		}
+
+		if len(record.Elements) > len(ctx.GetBindings()) {
+			v.err("ERROR_MISSING_RECORD_FIELDS")
+		}
+
+		if len(record.Elements) < len(ctx.GetBindings()) {
+			v.err("ERROR_UNEXPECTED_RECORD_FIELDS")
+		}
+
+		for _, binding := range ctx.GetBindings() {
+			t, ok := record.Elements[binding.GetName().GetText()]
+			if !ok {
+				v.err("ERROR_UNEXPECTED_RECORD_FIELDS")
 			}
 
 			v.checkingForType = t
@@ -946,7 +1056,7 @@ func (v *Visitor) VisitRef(ctx *parser.RefContext) interface{} {
 	if v.checking {
 		t, ok := v.checkingForType.(env.Reference)
 		if !ok {
-			err("ERROR_UNEXPECTED_REFERENCE")
+			v.err("ERROR_UNEXPECTED_REFERENCE")
 		}
 
 		v.checkingForType = t.UnderlyingType
@@ -1010,7 +1120,10 @@ func (v *Visitor) VisitSucc(ctx *parser.SuccContext) interface{} {
 	v.checkingForType = ty
 	
 	if v.checking {
-		TypeCheck(v.checkingForType, env.Nat{})
+		// TypeCheck(v.checkingForType, env.Nat{})
+		if v.checkingForType.Type() != (env.Nat{}).Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	return env.Nat{}
@@ -1020,16 +1133,9 @@ func (v *Visitor) VisitTail(ctx *parser.TailContext) interface{} {
 	ch, ty := v.checking, v.checkingForType
 	defer func() {v.checking, v.checkingForType = ch, ty} ()
 
-	v.checking = false
 	t, ok := ctx.GetList().Accept(v).(env.List)
 	if !ok {
-		fmt.Printf("%T\n", ctx.GetList().Accept(v))
-		err("ERROR_NOT_A_LIST")
-	}
-
-	if ch {
-		TypeCheck(t, ty)
-		return ty
+		v.err("ERROR_NOT_A_LIST")
 	}
 
 	return t
@@ -1046,11 +1152,11 @@ func (v *Visitor) VisitTerminatingSemicolon(ctx *parser.TerminatingSemicolonCont
 func (v *Visitor) VisitThrow(ctx *parser.ThrowContext) interface{} {
 
 	if v.env.Check(exceptionType).Type() == "" {
-		err("ERROR_EXCEPTION_TYPE_NOT_DECLARED")
+		v.err("ERROR_EXCEPTION_TYPE_NOT_DECLARED")
 	}
 
 	if !v.checking {
-		err("ERROR_AMBIGUOUS_THROW_TYPE")
+		v.err("ERROR_AMBIGUOUS_THROW_TYPE")
 	}
 
 	t := v.checkingForType
@@ -1069,7 +1175,7 @@ func (v *Visitor) VisitTryCastAs(ctx *parser.TryCastAsContext) interface{} {
 func (v *Visitor) VisitTryCatch(ctx *parser.TryCatchContext) interface{} {
 	
 	if v.env.Check(exceptionType).Type() == "" {
-		err("ERROR_EXCEPTION_TYPE_NOT_DECLARED")
+		v.err("ERROR_EXCEPTION_TYPE_NOT_DECLARED")
 	}
 	v.env.Push()
 	defer v.env.Pop()
@@ -1108,7 +1214,7 @@ func (v *Visitor) VisitTryCatch(ctx *parser.TryCatchContext) interface{} {
 func (v *Visitor) VisitTryWith(ctx *parser.TryWithContext) interface{} {
 
 	if v.env.Check(exceptionType).Type() == "" {
-		err("ERROR_EXCEPTION_TYPE_NOT_DECLARED")
+		v.err("ERROR_EXCEPTION_TYPE_NOT_DECLARED")
 	}
 	v.env.Push()
 	defer v.env.Pop()
@@ -1136,11 +1242,11 @@ func (v *Visitor) VisitTuple(ctx *parser.TupleContext) interface{} {
 
 		tuple, ok := ty.(env.Tuple)
 		if !ok {
-			err("ERROR_UNEXPECTED_TUPLE")
+			v.err("ERROR_UNEXPECTED_TUPLE")
 		}
 
 		if len(tuple.Elements) != len(ctx.GetExprs()) {
-			err("UNEXPECTED_TUPLE_LENGTH")
+			v.err("UNEXPECTED_TUPLE_LENGTH")
 		}
 
 		for i, expr := range ctx.GetExprs() {
@@ -1184,7 +1290,10 @@ func (v *Visitor) VisitTypeAsc(ctx *parser.TypeAscContext) interface{} {
 	fmt.Println(v.checkingForType.Type())
 	
 	if ch {
-		TypeCheck(ty, v.checkingForType)
+		// TypeCheck(ty, v.checkingForType)
+		if v.checkingForType.Type() != ty.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
 	}
 
 	// fmt.Printf("%T\n", ctx.GetType_())
@@ -1306,7 +1415,19 @@ func (v *Visitor) VisitTypeVar(ctx *parser.TypeVarContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeVariant(ctx *parser.TypeVariantContext) interface{} {
-	panic("unimplemented")
+	bindings := ctx.GetFieldTypes()
+	
+	var t = env.Variant{
+		Elements: make(map[string]env.Type, len(bindings)),
+	}
+
+	for _, binding := range bindings {
+		binding := binding.Accept(v).(env.Binding)
+
+		t.Elements[binding.Name] = binding.T
+	}
+
+	return t
 }
 
 func (v *Visitor) VisitUnfold(ctx *parser.UnfoldContext) interface{} {
@@ -1322,15 +1443,42 @@ func (v *Visitor) VisitVar(ctx *parser.VarContext) interface{} {
 
 	if !v.checking {return tp}
 
-	TypeCheck(v.checkingForType, tp)
+	// TypeCheck(v.checkingForType, tp)
+	if v.checkingForType.Type() != tp.Type() {
+		v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	}
 
 	return tp
 }
 
 func (v *Visitor) VisitVariant(ctx *parser.VariantContext) interface{} {
-	panic("unimplemented")
+	if !v.checking {
+		v.err("ERROR_AMBIGUOUS_VARIANT_TYPE")
+	}
+
+	variant, ok := v.checkingForType.(env.Variant)
+	if !ok {
+		v.err("ERROR_UNEXPECTED_VARIANT")
+	}
+
+	labelType, ok := variant.Elements[ctx.GetLabel().GetText()]
+	if !ok {
+		v.err("ERROR_UNEXPECTED_VARIANT_LABEL")
+	}
+
+	defer func(t env.Type) {
+		v.checkingForType = t
+	} (v.checkingForType)
+
+	v.checkingForType = labelType
+	ctx.GetRhs().Accept(v)
+
+	return variant
 }
 
 func (v *Visitor) VisitVariantFieldType(ctx *parser.VariantFieldTypeContext) interface{} {
-	panic("unimplemented")
+	return env.Binding{
+		Name: ctx.GetLabel().GetText(),
+		T: ctx.GetType_().Accept(v).(env.Type),
+	}
 }
