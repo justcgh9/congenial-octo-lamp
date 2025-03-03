@@ -11,10 +11,6 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
 
-var (
-	inlFlag bool = false
-	inrFlag bool = false
-)
 
 type Visitor struct {
 	*antlr.BaseParseTreeVisitor
@@ -24,6 +20,7 @@ type Visitor struct {
 	matchType			env.Type
 	subtyping 			int
 	ambiguousAsBottom	bool
+	cases				env.Stack[map[string]struct{}]
 }
 
 func (v *Visitor) Visit(tree antlr.ParseTree) interface{} {
@@ -860,18 +857,21 @@ func (v *Visitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 	v.checking = true
 	v.matchType = matchType
 
-	l, r := inlFlag, inrFlag
-	defer func(){inlFlag, inrFlag = l, r} ()
-	inlFlag = false
-	inrFlag = false
+	// l, r := inlFlag, inrFlag
+	// defer func(){inlFlag, inrFlag = l, r} ()
+	// inlFlag = false
+	// inrFlag = false
 	
+	v.cases.Push(make(map[string]struct{}, 64))
+
 	for _, expr := range ctx.GetCases() {
 		expr.Accept(v)
 	}
 
-	if _, ok := matchType.(env.Sum); ok && ! (inlFlag && inrFlag)  {
-		v.err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")
-	}
+	v.CheckCasesSet(v.matchType)
+	// if _, ok := matchType.(env.Sum); ok && ! (inlFlag && inrFlag)  {
+	// 	v.err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")
+	// }
 
 	return ty
 }
@@ -1040,8 +1040,14 @@ func (v *Visitor) VisitPatternInl(ctx *parser.PatternInlContext) interface{} {
 	v.checking = false
 
 	v.matchType = t.Left
+	
+	mp, _ := v.cases.Peek()
+	mp["left"] = struct{}{}
+
+	v.cases.Push(map[string]struct{}{})
 	ctx.GetPattern_().Accept(v)
-	inlFlag = true
+	v.cases.Pop()
+	
 	return nil
 }
 
@@ -1056,8 +1062,14 @@ func (v *Visitor) VisitPatternInr(ctx *parser.PatternInrContext) interface{} {
 	v.checking = false
 
 	v.matchType = t.Right
+	
+	mp, _ := v.cases.Peek()
+	mp["right"] = struct{}{}
+
+	v.cases.Push(map[string]struct{}{})
 	ctx.GetPattern_().Accept(v)
-	inrFlag = true
+	v.cases.Pop()
+	
 	return nil
 }
 
@@ -1112,7 +1124,15 @@ func (v *Visitor) VisitPatternVariant(ctx *parser.PatternVariantContext) interfa
 	if !ok {
 		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
 	}
+
+
+	mp, _ := v.cases.Peek()
+	mp[ctx.GetLabel().GetText()] = struct{}{}
+
+	v.cases.Push(map[string]struct{}{})
 	ctx.GetPattern_().Accept(v)
+	v.cases.Pop()
+	
 	return nil
 }
 

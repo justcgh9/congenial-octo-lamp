@@ -286,6 +286,33 @@ func (v Visitor) isSubtype(left, right interface{}) bool {
 	}
 }
 
+// func (v Visitor) InitEmptyCasesSet() {
+	
+// 	v.cases.Push(make(map[string]struct{}, 64))
+	
+// }
+
+func (v Visitor) CheckCasesSet(t interface{}) {
+
+	mp, _ := v.cases.Pop()
+
+	switch t :=  t.(type) {
+	default:
+		return
+	case env.Sum:
+		_, left_ok := mp["left"]
+		_, right_ok  := mp["right"]
+
+		if ! (left_ok && right_ok) { v.err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")}
+	case env.Variant:
+		for k := range t.Elements {
+			if _, ok := mp[k]; !ok {
+				v.err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")
+			}
+		}
+	}
+}
+
 // func isAmbiguousSumType(t interface{}) bool {
 // 	switch t := t.(type) {
 // 	default:
