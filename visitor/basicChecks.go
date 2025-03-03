@@ -12,7 +12,7 @@ func isAny(arg interface{}) bool {
 }
 
 func (v *Visitor) err(str string) {
-
+	// fmt.Println(v.subtyping)
 	if v.subtyping != 0 && str == "ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION" {
 		str = "ERROR_UNEXPECTED_SUBTYPE"
 	}
@@ -198,7 +198,7 @@ func (v Visitor) isSubtype(left, right interface{}) bool {
 	switch left := left.(type) {
 	default:
 		return false
-	case *env.Bottom:
+	case env.Bottom:
 		return true
 	case env.Nat:
 		_, ok := right.(env.Nat)
