@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"stella-implementation-in-go/env"
-
 )
 
 func isAny(arg interface{}) bool {
@@ -189,6 +188,101 @@ func throwAmbiguousType(t interface{}) {
 			fmt.Println("ERROR_AMBIGUOUS_THROW_TYPE")
 			os.Exit(1)
 		}
+	}
+}
+
+func (v Visitor) isSubtype(left, right interface{}) bool {
+
+	if _, ok := right.(env.Top); ok {return true}
+
+	switch left := left.(type) {
+	default:
+		return false
+	case *env.Bottom:
+		return true
+	case env.Nat:
+		_, ok := right.(env.Nat)
+		return ok
+	case env.Bool:
+		_, ok := right.(env.Bool)
+		return ok
+	case env.Unit:
+		_, ok := right.(env.Unit)
+		return ok
+	case env.Func:
+		right, ok := right.(env.Func)
+		if !ok { return false }
+		
+		if len(left.Args) != len(right.Args) { return false }
+		
+		for i := range left.Args {
+			if ! v.isSubtype(right.Args[i], left.Args[i]) {return false} 
+		}
+
+		return v.isSubtype(left.Return, right.Return)
+	case env.Tuple:
+		right, ok := right.(env.Tuple)
+		if !ok { return false }
+
+		if len(left.Elements) != len(right.Elements) { return false }
+		
+		for i := range left.Elements {
+			if ! v.isSubtype(left.Elements[i], right.Elements[i]) {return false} 
+		}
+
+		return true
+
+	case env.Record:
+		right, ok := right.(env.Record)
+		if !ok { return false }
+
+		if len(left.Elements) < len(right.Elements) { v.err("ERROR_MISSING_RECORD_FIELDS") }
+		
+		for i := range right.Elements {
+
+			_, ok := left.Elements[i]	
+
+			if !ok {
+				v.err("ERROR_MISSING_RECORD_FIELDS")
+			}
+
+			if !ok || !v.isSubtype(left.Elements[i], right.Elements[i]) {return false} 
+		}
+
+		return true
+	case env.Sum:
+		right, ok := right.(env.Sum)
+		if !ok {
+			return false
+		}
+
+		return v.isSubtype(left.Left, right.Left) && v.isSubtype(left.Right, right.Right)
+	case env.List:
+		right, ok := right.(env.List)
+		if !ok { return false }
+
+		return v.isSubtype(left.T, right.T)
+
+	case env.Reference:
+		right, ok := right.(env.Reference)
+
+		return ok && v.isSubtype(left.UnderlyingType, right.UnderlyingType) && v.isSubtype(right.UnderlyingType, left.UnderlyingType)
+
+	case env.Variant:
+		right, ok := right.(env.Variant)
+		if !ok { return false }
+
+		if len(left.Elements) > len(right.Elements) { v.err("ERROR_UNEXPECTED_VARIANT_LABEL") }
+
+		for k := range left.Elements {
+			_, ok := right.Elements[k]
+
+			if !ok {v.err("ERROR_UNEXPECTED_VARIANT_LABEL")}
+
+			if !ok || !v.isSubtype(left.Elements[k], right.Elements[k]) { return false }
+		}
+
+		return true
 	}
 }
 

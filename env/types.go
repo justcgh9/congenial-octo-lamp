@@ -158,7 +158,7 @@ type Variant struct {
 }
 
 func (r Variant) Type () string {
-	ans := "{"
+	ans := "<|"
 
 	keys := make([]string, 0, len(r.Elements))
 	for key := range r.Elements {
@@ -175,6 +175,18 @@ func (r Variant) Type () string {
 		ans = ans[:(len(ans) - 1)]
 	}
 
-	ans += "}"
+	ans += "|>"
 	return ans
+}
+
+type Top struct {}
+
+func (t Top) Type () string {
+	return "Top"
+}
+
+type Bottom struct {}
+
+func (t Bottom) Type () string {
+	return "Bottom"
 }

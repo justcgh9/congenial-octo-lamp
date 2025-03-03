@@ -6,6 +6,7 @@ import (
 	"stella-implementation-in-go/env"
 	"stella-implementation-in-go/parser"
 	"strconv"
+	"strings"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
@@ -17,11 +18,12 @@ var (
 
 type Visitor struct {
 	*antlr.BaseParseTreeVisitor
-	env             env.Env 		// our linked list of contexts
-	checking        bool			// checking or inferring the type
-	checkingForType env.Type		// Type we are checking for
-	matchType		env.Type
-	subtyping 		int
+	env             	env.Env 		// our linked list of contexts
+	checking        	bool			// checking or inferring the type
+	checkingForType 	env.Type		// Type we are checking for
+	matchType			env.Type
+	subtyping 			int
+	ambiguousAsBottom	bool
 }
 
 func (v *Visitor) Visit(tree antlr.ParseTree) interface{} {
@@ -32,13 +34,63 @@ func (v *Visitor) VisitAbstraction(ctx *parser.AbstractionContext) interface{} {
 	v.env.Push()
 	defer v.env.Pop()
 
+	if v.checking && v.subtyping == 1 {
+		
+		expected, ok := v.checkingForType.(env.Func);
+		defer func(){v.checkingForType = expected}()
+
+		if  !ok {
+			// fmt.Println(v.checkingForType.Type())
+			v.err("ERROR_UNEXPECTED_LAMBDA")
+		}
+
+		v.subtyping = -1
+
+		for i, param := range ctx.GetParamDecls() {
+			v.checkingForType = expected.Args[i]
+			param.Accept(v)
+		}
+
+		v.subtyping = 1
+
+		v.checkingForType = expected.Return
+		ctx.GetReturnExpr().Accept(v)
+
+		return expected
+	}
+
+	if v.checking && v.subtyping == -1 {
+		
+		expected, ok := v.checkingForType.(env.Func);
+		defer func(){v.checkingForType = expected}()
+
+		if  !ok {
+			// fmt.Println(v.checkingForType.Type())
+			v.err("ERROR_UNEXPECTED_LAMBDA")
+		}
+
+		v.subtyping = 1
+
+		for i, param := range ctx.GetParamDecls() {
+			v.checkingForType = expected.Args[i]
+			param.Accept(v)
+		}
+
+		v.subtyping = -1
+
+		v.checkingForType = expected.Return
+		ctx.GetReturnExpr().Accept(v)
+
+		return expected
+	}
+
 	if v.checking {
 
 		expected, ok := v.checkingForType.(env.Func);
 		defer func(){v.checkingForType = expected}()
 
 		if  !ok {
-			fmt.Println(v.checkingForType.Type())
+			// fmt.Println(v.checkingForType.Type())
 			v.err("ERROR_UNEXPECTED_LAMBDA")
 		}
 
@@ -196,6 +248,7 @@ func (v *Visitor) VisitConstMemory(ctx *parser.ConstMemoryContext) interface{} {
 		return t
 	}
 
+	if v.ambiguousAsBottom { return env.Bottom{} }
 	v.err("ERROR_AMBIGUOUS_REFERENCE_TYPE")
 	return nil
 }
@@ -486,6 +539,7 @@ func (v *Visitor) VisitIf(ctx *parser.IfContext) interface{} {
 
 func (v *Visitor) VisitInl(ctx *parser.InlContext) interface{} {
 	if !v.checking {
+		if v.ambiguousAsBottom { return env.Bottom{} }
 		v.err("ERROR_AMBIGUOUS_SUM_TYPE")
 	}
 
@@ -507,6 +561,7 @@ func (v *Visitor) VisitInlineAnnotation(ctx *parser.InlineAnnotationContext) int
 
 func (v *Visitor) VisitInr(ctx *parser.InrContext) interface{} {
 	if !v.checking {
+		if v.ambiguousAsBottom { return env.Bottom{} }
 		v.err("ERROR_AMBIGUOUS_SUM_TYPE")
 	}
 
@@ -613,7 +668,8 @@ func (v *Visitor) VisitList(ctx *parser.ListContext) interface{} {
 		lst, ok := v.checkingForType.(env.List)
 		if !ok {
 
-			if len(ctx.GetExprs()) <= 0 {
+			if len(ctx.GetExprs()) <= 0 && ! v.ambiguousAsBottom {
+				// if v.ambiguousAsBottom { return env.Bottom{} }
 				v.err("ERROR_AMBIGUOUS_LIST_TYPE")
 			}
 
@@ -631,6 +687,7 @@ func (v *Visitor) VisitList(ctx *parser.ListContext) interface{} {
 	}
 
 	if len(ctx.GetExprs()) <= 0 {
+		if v.ambiguousAsBottom { return env.Bottom{} }
 		v.err("ERROR_AMBIGUOUS_LIST_TYPE")
 	}
 
@@ -765,6 +822,7 @@ func (v *Visitor) VisitPanic(ctx *parser.PanicContext) interface{} {
 		return v.checkingForType
 	}
 
+	if v.ambiguousAsBottom { return env.Bottom{} }
 	v.err("ERROR_AMBIGUOUS_PANIC_TYPE")
 	return nil
 }
@@ -923,10 +981,12 @@ func (v *Visitor) VisitProgram(ctx *parser.ProgramContext) interface{} {
 	v.env.Push()
 
 	defer v.env.Pop()
-	// ctx.Get_extension().GetText()
-	if len(ctx.GetExtensions()) > 0 && contains(ctx.Get_extension().GetText(), "structural-subtyping") {
+	if len(ctx.GetExtensions()) > 0 && strings.Contains(ctx.Get_extension().GetText(), "structural-subtyping") {
+		// fmt.Println(ctx.Get_extension().GetText())
 		v.subtyping = 1
 	}
+
+	v.ambiguousAsBottom = len(ctx.GetExtensions()) > 0 && strings.Contains(ctx.Get_extension().GetText(), "ambiguous-type-as-bottom")
 
 	for _, decl := range ctx.GetDecls() {
 		v.env.Push()
@@ -975,6 +1035,7 @@ func (v *Visitor) VisitRecord(ctx *parser.RecordContext) interface{} {
 	} (v.checking, v.checkingForType)
 
 	if v.checking && v.subtyping == 1 {
+
 		record, ok := v.checkingForType.(env.Record)
 		if !ok {
 			v.err("ERROR_UNEXPECTED_RECORD")
@@ -998,6 +1059,26 @@ func (v *Visitor) VisitRecord(ctx *parser.RecordContext) interface{} {
 				binding.GetRhs().Accept(v)
 				v.checking = true
 				continue
+			}
+
+			v.checkingForType = t
+			binding.GetRhs().Accept(v)
+		}
+
+		return record
+	}
+
+	if v.checking && v.subtyping == -1 {
+		record, ok := v.checkingForType.(env.Record)
+		if !ok {
+			v.err("ERROR_UNEXPECTED_RECORD")
+		}
+
+		for _, binding := range ctx.GetBindings() {
+
+			t, ok := record.Elements[binding.GetName().GetText()]
+			if !ok {
+				v.err("ERROR_MISSING_RECORD_FIELDS")
 			}
 
 			v.checkingForType = t
@@ -1053,6 +1134,11 @@ func (v *Visitor) VisitRecordFieldType(ctx *parser.RecordFieldTypeContext) inter
 }
 
 func (v *Visitor) VisitRef(ctx *parser.RefContext) interface{} {
+
+	defer func(i int) {v.subtyping = i} (v.subtyping)
+
+	v.subtyping = 0
+
 	if v.checking {
 		t, ok := v.checkingForType.(env.Reference)
 		if !ok {
@@ -1156,6 +1242,7 @@ func (v *Visitor) VisitThrow(ctx *parser.ThrowContext) interface{} {
 	}
 
 	if !v.checking {
+		if v.ambiguousAsBottom { return env.Bottom{} }
 		v.err("ERROR_AMBIGUOUS_THROW_TYPE")
 	}
 
@@ -1287,7 +1374,7 @@ func (v *Visitor) VisitTypeAsc(ctx *parser.TypeAscContext) interface{} {
 	v.checking = true
 	
 	ctx.GetExpr_().Accept(v)
-	fmt.Println(v.checkingForType.Type())
+	// fmt.Println(v.checkingForType.Type())
 	
 	if ch {
 		// TypeCheck(ty, v.checkingForType)
@@ -1310,7 +1397,7 @@ func (v *Visitor) VisitTypeBool(ctx *parser.TypeBoolContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeBottom(ctx *parser.TypeBottomContext) interface{} {
-	panic("unimplemented")
+	return env.Bottom{}
 }
 
 func (v *Visitor) VisitTypeCast(ctx *parser.TypeCastContext) interface{} {
@@ -1388,7 +1475,7 @@ func (v *Visitor) VisitTypeSum(ctx *parser.TypeSumContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeTop(ctx *parser.TypeTopContext) interface{} {
-	panic("unimplemented")
+	return env.Top{}
 }
 
 func (v *Visitor) VisitTypeTuple(ctx *parser.TypeTupleContext) interface{} {
@@ -1443,8 +1530,17 @@ func (v *Visitor) VisitVar(ctx *parser.VarContext) interface{} {
 
 	if !v.checking {return tp}
 
+	if v.subtyping == 1 && v.isSubtype(tp, v.checkingForType) {
+		return v.checkingForType
+	}
+
+	if v.subtyping == -1 && v.isSubtype(v.checkingForType, tp) {
+		return tp
+	}
+
 	// TypeCheck(v.checkingForType, tp)
 	if v.checkingForType.Type() != tp.Type() {
+		// fmt.Println(v.subtyping)
 		v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
 	}
 
@@ -1453,6 +1549,7 @@ func (v *Visitor) VisitVar(ctx *parser.VarContext) interface{} {
 
 func (v *Visitor) VisitVariant(ctx *parser.VariantContext) interface{} {
 	if !v.checking {
+		if v.ambiguousAsBottom { return env.Bottom{} }
 		v.err("ERROR_AMBIGUOUS_VARIANT_TYPE")
 	}
 
