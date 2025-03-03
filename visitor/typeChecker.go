@@ -1018,6 +1018,7 @@ func (v *Visitor) VisitPatternBinding(ctx *parser.PatternBindingContext) interfa
 }
 
 func (v *Visitor) VisitPatternCastAs(ctx *parser.PatternCastAsContext) interface{} {
+	fmt.Println("here")
 	panic("unimplemented")
 }
 
@@ -1561,7 +1562,38 @@ func (v *Visitor) VisitTypeBottom(ctx *parser.TypeBottomContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeCast(ctx *parser.TypeCastContext) interface{} {
-	panic("unimplemented")
+	
+	ch := v.checking
+
+	v.checking = false
+
+	ctx.GetExpr_().Accept(v)
+
+	v.checking = ch
+
+	t := ctx.GetType_().Accept(v)
+
+	if ch && v.subtyping == 1 {
+		if v.isSubtype(t, v.checkingForType) { return v.checkingForType }
+
+		v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	}
+
+	if ch && v.subtyping == -1 {
+		if v.isSubtype(v.checkingForType, t) { return t }
+
+		v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+	}
+
+	if ch {
+		if t.(env.Type).Type() != v.checkingForType.Type() {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
+
+		return v.checkingForType
+	}
+
+	return t
 }
 
 func (v *Visitor) VisitTypeForAll(ctx *parser.TypeForAllContext) interface{} {
