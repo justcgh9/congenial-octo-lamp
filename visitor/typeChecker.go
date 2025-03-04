@@ -1127,8 +1127,22 @@ func (v *Visitor) VisitPatternVar(ctx *parser.PatternVarContext) interface{} {
 		v.env.Put(ctx.GetName().GetText(), v.checkingForType)
 		return v.checkingForType
 	}
-
+	
 	v.env.Put(ctx.GetName().GetText(), v.matchType)
+	mp, _ := v.cases.Peek()
+
+	switch t := v.matchType.(type) {
+	default:
+	case env.Sum:
+		mp["left"] = struct{}{}
+		mp["right"] = struct{}{}
+	case env.Variant:
+		for label := range t.Elements {
+			mp[label] = struct{}{}
+		}
+	}
+
+
 	return v.matchType
 }
 
@@ -1167,12 +1181,22 @@ func (v *Visitor) VisitProgram(ctx *parser.ProgramContext) interface{} {
 	v.env.Push()
 
 	defer v.env.Pop()
-	if len(ctx.GetExtensions()) > 0 && strings.Contains(ctx.Get_extension().GetText(), "structural-subtyping") {
-		// fmt.Println(ctx.Get_extension().GetText())
-		v.subtyping = 1
-	}
+	// if len(ctx.GetExtensions()) > 0 && strings.Contains(ctx.Get_extension().GetText(), "structural-subtyping") {
+	// 	// fmt.Println(ctx.Get_extension().GetText())
+	// 	v.subtyping = 1
+	// }
 
-	v.ambiguousAsBottom = len(ctx.GetExtensions()) > 0 && strings.Contains(ctx.Get_extension().GetText(), "ambiguous-type-as-bottom")
+	// v.ambiguousAsBottom = len(ctx.GetExtensions()) > 0 && strings.Contains(ctx.Get_extension().GetText(), "ambiguous-type-as-bottom")
+
+	for _, ext := range ctx.GetExtensions() {
+		if strings.Contains(ext.GetText(), "structural-subtyping") {
+			v.subtyping = 1
+		}
+
+		if strings.Contains(ext.GetText(), "ambiguous-type-as-bottom") {
+			v.ambiguousAsBottom = true
+		}
+	}
 
 	for _, decl := range ctx.GetDecls() {
 		v.env.Push()
@@ -1232,7 +1256,7 @@ func (v *Visitor) VisitRecord(ctx *parser.RecordContext) interface{} {
 			labels[i] = binding.GetName().GetText()
 		}
 
-		for key, _ := range record.Elements {
+		for key := range record.Elements {
 			if !contains(key, labels...) {
 				v.err("ERROR_MISSING_RECORD_FIELDS")
 			}
