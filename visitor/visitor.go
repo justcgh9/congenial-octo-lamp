@@ -945,7 +945,7 @@ func (v *TypeCheckVisitor) VisitDeclExceptionType(ctx *parser.DeclExceptionTypeC
 }
 
 func (v *TypeCheckVisitor) VisitDeclExceptionVariant(ctx *parser.DeclExceptionVariantContext) interface{} {
-	return v.VisitChildren(ctx)
+	return v.Visit(ctx)
 }
 
 func (v *TypeCheckVisitor) VisitInlineAnnotation(ctx *parser.InlineAnnotationContext) interface{} {

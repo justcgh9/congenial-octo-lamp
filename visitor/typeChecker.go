@@ -270,7 +270,9 @@ func (v *Visitor) VisitConstMemory(ctx *parser.ConstMemoryContext) interface{} {
 		return t
 	}
 
-	if v.ambiguousAsBottom { return env.Bottom{} }
+	if v.ambiguousAsBottom { return env.Reference{
+		UnderlyingType: env.Bottom{},
+	} }
 	v.err("ERROR_AMBIGUOUS_REFERENCE_TYPE")
 	return nil
 }
@@ -324,7 +326,24 @@ func (v *Visitor) VisitDeclExceptionType(ctx *parser.DeclExceptionTypeContext) i
 }
 
 func (v *Visitor) VisitDeclExceptionVariant(ctx *parser.DeclExceptionVariantContext) interface{} {
-	panic("unimplemented")
+	
+	excType := v.env.Check(exceptionType)
+	if _, ok := excType.(env.Erroneos); ok {
+		v.env.Put(exceptionType, env.Variant{
+			Elements: map[string]env.Type{
+				ctx.GetName().GetText(): ctx.GetVariantType().Accept(v).(env.Type),
+			},
+		})
+
+		return v.env.Check(exceptionType)
+	}
+
+	_, ok := excType.(env.Variant).Elements[ctx.GetName().GetText()]
+	if !ok {
+		excType.(env.Variant).Elements[ctx.GetName().GetText()] = ctx.GetVariantType().Accept(v).(env.Type)
+	}
+	
+	return excType
 }
 
 func (v *Visitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} {
@@ -1018,8 +1037,10 @@ func (v *Visitor) VisitPatternBinding(ctx *parser.PatternBindingContext) interfa
 }
 
 func (v *Visitor) VisitPatternCastAs(ctx *parser.PatternCastAsContext) interface{} {
-	fmt.Println("here")
-	panic("unimplemented")
+	defer func(t env.Type) {v.matchType = t} (v.matchType)
+	v.matchType = ctx.GetType_().Accept(v).(env.Type)
+	ctx.GetPattern_().Accept(v)
+	return nil
 }
 
 func (v *Visitor) VisitPatternCons(ctx *parser.PatternConsContext) interface{} {
@@ -1125,6 +1146,8 @@ func (v *Visitor) VisitPatternVariant(ctx *parser.PatternVariantContext) interfa
 		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
 	}
 
+	if v.matchType == nil && ctx.GetPattern_() != nil { v.err("ERROR_UNEXPECTED_NON_NULLARY_VARIANT_PATTERN") }
+	if v.matchType != nil && ctx.GetPattern_() == nil { v.err("ERROR_UNEXPECTED_NULLARY_VARIANT_PATTERN") }
 
 	mp, _ := v.cases.Peek()
 	mp[ctx.GetLabel().GetText()] = struct{}{}
@@ -1428,7 +1451,44 @@ func (v *Visitor) VisitThrow(ctx *parser.ThrowContext) interface{} {
 }
 
 func (v *Visitor) VisitTryCastAs(ctx *parser.TryCastAsContext) interface{} {
-	panic("unimplemented")
+	v.env.Push()
+	defer v.env.Pop()
+
+	if v.checking {
+		v.checking = false
+		ctx.GetTryExpr().Accept(v)
+		v.checking = true
+
+		t := v.checkingForType
+		v.checkingForType = ctx.GetType_().Accept(v).(env.Type)
+
+		ctx.GetPattern_().Accept(v)
+
+		v.checkingForType = t
+		ctx.GetExpr_().Accept(v)
+
+		ctx.GetFallbackExpr().Accept(v)
+
+		return v.checkingForType
+
+	}
+
+	ctx.GetTryExpr().Accept(v)
+
+	v.checking = true
+	t := v.checkingForType
+	v.checkingForType = ctx.GetType_().Accept(v).(env.Type)
+	ctx.GetPattern_().Accept(v)
+	v.checking = false
+
+	ty := ctx.GetExpr_().Accept(v).(env.Type)
+	v.checking = true
+	v.checkingForType = ty
+	ctx.GetFallbackExpr().Accept(v)
+
+	v.checkingForType = t
+
+	return ty
 }
 
 func (v *Visitor) VisitTryCatch(ctx *parser.TryCatchContext) interface{} {
@@ -1765,6 +1825,15 @@ func (v *Visitor) VisitVariant(ctx *parser.VariantContext) interface{} {
 	}
 
 	if !v.checking {
+
+		if ctx.GetRhs() == nil {
+			return env.Variant{
+				Elements: map[string]env.Type{
+					ctx.GetLabel().GetText(): nil,
+				},
+			}
+		}
+
 		return env.Variant{
 			Elements: map[string]env.Type{
 				ctx.GetLabel().GetText(): ctx.GetRhs().Accept(v).(env.Type),
@@ -1786,13 +1855,28 @@ func (v *Visitor) VisitVariant(ctx *parser.VariantContext) interface{} {
 		v.checkingForType = t
 	} (v.checkingForType)
 
+	if ctx.GetRhs() == nil {
+		if labelType == nil { return variant}
+		v.err("ERROR_MISSING_DATA_FOR_LABEL")
+	}
+
+	if labelType == nil {
+		v.err("ERROR_UNEXPECTED_DATA_FOR_NULLARY_LABEL")
+	}
+
 	v.checkingForType = labelType
 	ctx.GetRhs().Accept(v)
+
 
 	return variant
 }
 
 func (v *Visitor) VisitVariantFieldType(ctx *parser.VariantFieldTypeContext) interface{} {
+	if ctx.GetType_() == nil {
+		return env.Binding{
+			Name: ctx.GetLabel().GetText(),
+		}
+	}
 	return env.Binding{
 		Name: ctx.GetLabel().GetText(),
 		T: ctx.GetType_().Accept(v).(env.Type),

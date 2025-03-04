@@ -168,6 +168,10 @@ func (r Variant) Type () string {
 	sort.Strings(keys)
 
 	for _, key := range keys {
+		if r.Elements[key] == nil {
+			ans += key + ","
+			continue
+		}
 		ans += key + ":" + r.Elements[key].Type() + ","
 	}
 
