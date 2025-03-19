@@ -39,3 +39,13 @@ func MissingRecordFields() {
 	fmt.Println("ERROR_MISSING_RECORD_FIELDS")
 	os.Exit(1)
 }
+
+func IllegalEmptyMatching() {
+	fmt.Println("ERROR_ILLEGAL_EMPTY_MATCHING")
+	os.Exit(1)
+}
+
+func UnexpectedPatternForType() {
+	fmt.Println("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
+	os.Exit(1)
+}

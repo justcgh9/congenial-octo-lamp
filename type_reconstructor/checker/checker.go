@@ -68,9 +68,9 @@ func (v *TypeReconstructionVisitor) VisitProgram(ctx *parser.ProgramContext) int
 
 	for _, decl := range ctx.GetDecls() {
 		decl.Accept(v)
-		for _, constraint := range constraints {
-			fmt.Println(constraint.Left, "=", constraint.Right)
-		}
+		// for _, constraint := range constraints {
+		// 	fmt.Println(constraint.Left, "=", constraint.Right)
+		// }
 		_, err := unifyConstraints(constraints)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -540,7 +540,66 @@ func (v *TypeReconstructionVisitor) VisitInr(ctx *parser.InrContext) interface{}
 }
 
 func (v *TypeReconstructionVisitor) VisitMatch(ctx *parser.MatchContext) interface{} {
-	return v.VisitChildren(ctx)
+	
+	_, err := unifyConstraints(constraints)
+	if err != nil {
+		fmt.Println(err.Error())
+		UnexpectedTypeForExpression()
+	}
+
+	cases := ctx.GetCases()
+	
+	if len(cases) <= 0 {
+		IllegalEmptyMatching()
+	}
+
+	matchType := ctx.GetExpr_().Accept(v).(Type)
+
+	first := cases[0].Accept(v).(Constraint)
+
+	AddConstraint(
+		NewConstraint(
+			matchType,
+			first.Left,
+		),
+		&constraints,
+	)
+
+	cases = cases[1:]
+
+	for _, expr := range cases {
+		nth := expr.Accept(v).(Constraint)
+
+		AddConstraint(
+			NewConstraint(
+				matchType,
+				nth.Left,
+			),
+			&constraints,
+		)
+
+		_, err := unifyConstraints(constraints)
+		if err != nil {
+			fmt.Println(err.Error())
+			UnexpectedPatternForType()
+		}
+
+		AddConstraint(
+			NewConstraint(
+				nth.Right,
+				first.Right,
+			),
+			&constraints,
+		)
+
+		_, err = unifyConstraints(constraints)
+		if err != nil {
+			fmt.Println(err.Error())
+			UnexpectedTypeForExpression()
+		}
+	}
+
+	return first.Right
 }
 
 func (v *TypeReconstructionVisitor) VisitLogicNot(ctx *parser.LogicNotContext) interface{} {
@@ -804,7 +863,14 @@ func (v *TypeReconstructionVisitor) VisitBinding(ctx *parser.BindingContext) int
 }
 
 func (v *TypeReconstructionVisitor) VisitMatchCase(ctx *parser.MatchCaseContext) interface{} {
-	return v.VisitChildren(ctx)
+	v.Env.Push()
+	defer v.Env.Pop()
+
+	x := ctx.GetPattern_().Accept(v).(Type)
+
+	y := ctx.GetExpr_().Accept(v).(Type)
+
+	return NewConstraint(x, y)
 }
 
 func (v *TypeReconstructionVisitor) VisitPatternCons(ctx *parser.PatternConsContext) interface{} {
