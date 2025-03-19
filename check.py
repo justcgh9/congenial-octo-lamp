@@ -5,6 +5,9 @@ import time
 def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
     # print(os.listdir(folder_path))
     # while True:
+    total_succeeded, total = 0, 0
+    panics = 0
+    failing = []
     for filename in os.listdir(folder_path):
         file_path = os.path.join(folder_path, filename)
         # print(f"got to {file_path}")
@@ -34,15 +37,19 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
                 
                 flag = False
                 
+                success = True
+                
                 for output_line in go_process.stdout:
                     if output_line.startswith("ERROR"):
                         flag = True
                         # print(output_line.split(".")[0])
                         if output_line.split(".")[0].strip() not in errors:
                             print(f"{filename}: Expected one of {errors}, got {output_line.split(".")[0]}")
+                            success = False
                 
                 if not flag and errors:
                     print(f"{filename}: Expected one of {errors}, got []")
+                    success = False
                 
                 for line in go_process.stderr:
                     output.append(line)
@@ -51,6 +58,16 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
                 status = go_process.returncode
                 if status > 1:
                     print(f"Test: {filename}")
+                    success = False
+                    panics += 1
+                elif not success:
+                    failing.append(f"Test: {filename}")
+                
+                if success:
+                    total_succeeded += 1
+                total += 1
+    print(f"{total_succeeded}/{total}, panics:{panics}")
+    print(f"Failing without panic: {failing}")
                     # for line in output:
                     #     print(line)
                 # # elif errors:
@@ -65,8 +82,10 @@ def process_files(folder_path, binary_path, binary_args=[], go_binary_path=""):
 if __name__ == "__main__":
     # folder_path = "./examples/public-tests/week-1/main/public/"
     # folder_path = "./examples/tests-master/variants/well-typed" 
-    # folder_path = "../public-tests/week-3/main/secret/"
-    folder_path = "../public-tests/week-6/extra/public/"
+    # folder_path = "../public-tests/week-6/main/secret/"
+    folder_path = "../public-tests/week-8/main/public/"
+    # folder_path = "../public-tests/week-6/removed_tests/main/public/"
+    # folder_path = "../public-tests/week-6/removed_tests/main/secret/"
     binary_path = "./stella"  # Change this to the binary you want to execute
     binary_args = ["typecheck"]  # Add any arguments needed for the binary
     go_binary_path = "./my-stella"

@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 	"stella-implementation-in-go/parser"
-	"stella-implementation-in-go/visitor"
+	"stella-implementation-in-go/type_reconstructor/checker"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
@@ -33,8 +33,7 @@ func main() {
 	stream := antlr.NewCommonTokenStream(lexer, 0)
 	p := parser.NewStellaParser(stream)
 
-	var v parser.StellaParserVisitor
-	v = &visitor.Visitor{}
+	v := &checker.TypeReconstructionVisitor{}
 	tree := p.Program()
 	v.VisitProgram(tree.(*parser.ProgramContext))
 

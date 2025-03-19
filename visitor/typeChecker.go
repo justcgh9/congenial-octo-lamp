@@ -49,7 +49,7 @@ func (v *Visitor) VisitAbstraction(ctx *parser.AbstractionContext) interface{} {
 		}
 
 		v.subtyping = 1
-
+		fmt.Println("before", v.env.Check("r").Type())
 		v.checkingForType = expected.Return
 		ctx.GetReturnExpr().Accept(v)
 
@@ -188,6 +188,29 @@ func (v *Visitor) VisitChildren(node antlr.RuleNode) interface{} {
 }
 
 func (v *Visitor) VisitConsList(ctx *parser.ConsListContext) interface{} {
+	if v.checking && v.subtyping == 1 {
+		if v.checkingForType.Type() == "Top" {
+			v.checkingForType = env.List{
+				T: env.Top{},
+			}
+
+			defer func ()  {
+				v.checkingForType = env.Top{}
+			} ()
+		}
+
+		lst, ok := v.checkingForType.(env.List)
+		if !ok {
+			v.err("ERROR_UNEXPECTED_LIST")
+		}
+		v.checkingForType = lst.T
+		ctx.GetHead().Accept(v)
+		v.checkingForType = lst
+		ctx.GetTail().Accept(v)
+
+		return lst
+	}
+
 	if v.checking {
 		lst, ok := v.checkingForType.(env.List)
 		if !ok {
@@ -800,6 +823,16 @@ func (v *Visitor) VisitLetRec(ctx *parser.LetRecContext) interface{} {
 func (v *Visitor) VisitList(ctx *parser.ListContext) interface{} {
 	if v.checking {
 
+		if v.subtyping == 1 && v.checkingForType.Type() == "Top" {
+			v.checkingForType = env.List{
+				T: env.Top{},
+			}
+
+			defer func ()  {
+				v.checkingForType = env.Top{}
+			} ()
+		}
+
 		lst, ok := v.checkingForType.(env.List)
 		if !ok {
 
@@ -872,21 +905,21 @@ func (v *Visitor) VisitMatch(ctx *parser.MatchContext) interface{} {
 	v.checking = false
 	matchType := ctx.GetExpr_().Accept(v).(env.Type)
 
-
+	
 	v.checking = true
 	v.matchType = matchType
-
+	
 	// l, r := inlFlag, inrFlag
 	// defer func(){inlFlag, inrFlag = l, r} ()
 	// inlFlag = false
 	// inrFlag = false
 	
 	v.cases.Push(make(map[string]struct{}, 64))
-
+	
 	for _, expr := range ctx.GetCases() {
 		expr.Accept(v)
 	}
-
+	
 	v.CheckCasesSet(v.matchType)
 	// if _, ok := matchType.(env.Sum); ok && ! (inlFlag && inrFlag)  {
 	// 	v.err("ERROR_NONEXHAUSTIVE_MATCH_PATTERNS")
@@ -986,10 +1019,12 @@ func (v *Visitor) VisitParamDecl(ctx *parser.ParamDeclContext) interface{} {
 	v.checking = ch
 
 	if v.checking && v.subtyping == 1 && v.isSubtype(ty, v.checkingForType) {
+		v.env.Put(nm, v.checkingForType)
 		return v.checkingForType
 	}
 
 	if v.checking && v.subtyping == -1 && v.isSubtype(v.checkingForType, ty) {
+		v.env.Put(nm, ty)
 		return ty
 	}
 	
@@ -1345,11 +1380,22 @@ func (v *Visitor) VisitRecordFieldType(ctx *parser.RecordFieldTypeContext) inter
 
 func (v *Visitor) VisitRef(ctx *parser.RefContext) interface{} {
 
-	defer func(i int) {v.subtyping = i} (v.subtyping)
+	// defer func(i int) {v.subtyping = i} (v.subtyping)
 
-	v.subtyping = 2
+	// v.subtyping = 1
 
 	if v.checking {
+
+		if v.subtyping == 1 && v.checkingForType.Type() == "Top" {
+			v.checkingForType = env.Reference{
+				UnderlyingType: env.Top{},
+			}
+
+			defer func ()  {
+				v.checkingForType = env.Top{}
+			} ()
+		}
+
 		t, ok := v.checkingForType.(env.Reference)
 		if !ok {
 			v.err("ERROR_UNEXPECTED_REFERENCE")
@@ -1807,7 +1853,9 @@ func (v *Visitor) VisitTypeVariant(ctx *parser.TypeVariantContext) interface{} {
 	for _, binding := range bindings {
 		binding := binding.Accept(v).(env.Binding)
 
-		t.Elements[binding.Name] = binding.T
+		if _, ok := t.Elements[binding.Name]; !ok {
+			t.Elements[binding.Name] = binding.T
+		}
 	}
 
 	return t
