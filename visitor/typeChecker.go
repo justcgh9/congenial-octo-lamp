@@ -11,10 +11,19 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
 
+var TypeVarCounter = 0
+
+func NewTypeVar() env.Type {
+	TypeVarCounter++
+	return env.Var{
+		ID: TypeVarCounter,
+	}
+}
 
 type Visitor struct {
 	*antlr.BaseParseTreeVisitor
 	env             	env.Env 		// our linked list of contexts
+	typesEnv			env.Env			// mapping of type variables names to types (or indexes)
 	checking        	bool			// checking or inferring the type
 	checkingForType 	env.Type		// Type we are checking for
 	matchType			env.Type
@@ -394,6 +403,11 @@ func (v *Visitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} {
 	ctx.GetReturnExpr().Accept(v)
 
 	v.env.Pop()
+
+	f := v.env.Check(ctx.GetName().GetText()).(env.Func)
+	f.Return = v.checkingForType
+
+	v.env.Put(ctx.GetName().GetText(), f)
 
 	return nil
 }
@@ -1075,7 +1089,7 @@ func (v *Visitor) VisitPatternInl(ctx *parser.PatternInlContext) interface{} {
 func (v *Visitor) VisitPatternInr(ctx *parser.PatternInrContext) interface{} {
 	t, ok := v.matchType.(env.Sum)
 	if !ok {
-		fmt.Printf("%T\n", v.matchType)
+		// fmt.Printf("%T\n", v.matchType)
 		v.err("ERROR_UNEXPECTED_PATTERN_FOR_TYPE")
 	}
 
@@ -1613,11 +1627,85 @@ func (v *Visitor) VisitTuple(ctx *parser.TupleContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeAbstraction(ctx *parser.TypeAbstractionContext) interface{} {
-	panic("unimplemented")
+	var t env.GenericAbstraction
+
+	v.typesEnv.Push()
+	defer v.typesEnv.Pop()
+
+	if v.checking {
+
+		if val, ok := v.checkingForType.(env.GenericAbstraction); !ok || len(val.Generics) != len(ctx.GetGenerics()) {
+			v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
+		}
+
+		expected := v.checkingForType.(env.GenericAbstraction)
+
+		for i, binding := range ctx.GetGenerics() {
+			v.typesEnv.Put(binding.GetText(), expected.Bindings[i].T)
+		}
+
+		v.checkingForType = expected.T
+		ctx.GetExpr_().Accept(v)
+
+		expected.Ctx = ctx.GetExpr_()
+		v.checkingForType = expected
+
+
+		return v.checkingForType
+	}
+
+
+	generics := make(map[string]env.Type, len(ctx.GetGenerics()))
+	bindings := []env.Binding{}
+
+	for _, expr := range ctx.GetGenerics() {
+		typeVar := NewTypeVar()
+		v.typesEnv.Put(expr.GetText(), typeVar)
+		generics[expr.GetText()] = typeVar
+		bindings = append(bindings, env.Binding{
+			Name: expr.GetText(),
+			T: typeVar,
+		})
+	}
+	
+	t = env.GenericAbstraction{
+		Generics: generics,
+		Bindings: bindings,
+		T: ctx.GetExpr_().Accept(v).(env.Type),
+		Ctx: ctx.GetExpr_(),
+	}
+
+
+	return t
 }
 
 func (v *Visitor) VisitTypeApplication(ctx *parser.TypeApplicationContext) interface{} {
-	panic("unimplemented")
+	
+	var temp bool
+	temp, v.checking = v.checking, false
+
+	expr, ok := ctx.GetFun().Accept(v).(env.GenericAbstraction)
+	if !ok {
+		v.err("ERROR_NOT_A_GENERIC_FUNCTION")
+	}
+
+	v.checking = temp
+
+	if len(expr.Bindings) != len(ctx.GetTypes()) {
+		v.err("ERROR_INCORRECT_NUMBER_OF_TYPE_ARGUMENTS")
+	}
+
+	v.typesEnv.Push()
+	defer v.typesEnv.Pop()
+	var t env.Type
+
+	for i, binding := range expr.Bindings {
+		v.typesEnv.Put(binding.Name, ctx.GetTypes()[i].Accept(v).(env.Type))
+	}
+
+	t = expr.Ctx.Accept(v).(env.Type)
+
+	return t
 }
 
 func (v *Visitor) VisitTypeAsc(ctx *parser.TypeAscContext) interface{} {
@@ -1701,7 +1789,29 @@ func (v *Visitor) VisitTypeCast(ctx *parser.TypeCastContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeForAll(ctx *parser.TypeForAllContext) interface{} {
-	panic("unimplemented")
+	v.typesEnv.Push()
+	defer v.typesEnv.Pop()
+
+	generics := map[string]env.Type{}
+	bindings := []env.Binding{}
+
+	for _, expr := range ctx.GetTypes() {
+		typeVar := NewTypeVar()
+		v.typesEnv.Put(expr.GetText(), typeVar)
+		generics[expr.GetText()] = typeVar
+		bindings = append(bindings, env.Binding{
+			Name: expr.GetText(),
+			T: typeVar,
+		})
+	}
+
+	t := env.GenericAbstraction{
+		Generics: generics,
+		Bindings: bindings,
+		T: ctx.GetType_().Accept(v).(env.Type),
+	}
+
+	return t
 }
 
 func (v *Visitor) VisitTypeFun(ctx *parser.TypeFunContext) interface{} {
@@ -1794,7 +1904,13 @@ func (v *Visitor) VisitTypeUnit(ctx *parser.TypeUnitContext) interface{} {
 }
 
 func (v *Visitor) VisitTypeVar(ctx *parser.TypeVarContext) interface{} {
-	panic("unimplemented")
+	t := v.typesEnv.Check(ctx.GetName().GetText())
+
+	if t.Type() == "" {
+		v.err("ERROR_UNDEFINED_TYPE_VARIABLE")
+	}
+
+	return t
 }
 
 func (v *Visitor) VisitTypeVariant(ctx *parser.TypeVariantContext) interface{} {

@@ -13,6 +13,7 @@ func isAny(arg interface{}) bool {
 
 func (v *Visitor) err(str string) {
 	// fmt.Println(v.subtyping)
+	// panic("panic")
 	if v.subtyping != 0 && str == "ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION" {
 		str = "ERROR_UNEXPECTED_SUBTYPE"
 	}

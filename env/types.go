@@ -1,6 +1,10 @@
 package env
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+	"stella-implementation-in-go/parser"
+)
 
 type Type interface {
 	Type() string
@@ -193,4 +197,44 @@ type Bottom struct {}
 
 func (t Bottom) Type () string {
 	return "Bottom"
+}
+
+type GenericAbstraction struct {
+	Generics map[string]Type
+	T 		 Type
+	Bindings []Binding
+	Ctx 	 parser.IExprContext
+}
+
+func (g GenericAbstraction) Type () string {
+	
+	ans := "["
+
+	keys := make([]string, 0, len(g.Generics))
+	for key := range g.Generics {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ans += key + ","
+	}
+
+	if ans[len(ans) - 1] == ',' {
+		ans = ans[:(len(ans) - 1)]
+	}
+
+	ans += "] " + g.T.Type()
+
+
+	return ans
+}
+
+type Var struct {
+	ID 	int
+}
+
+func (v Var) Type() string {
+	return fmt.Sprintf("var %d", v.ID)
 }
