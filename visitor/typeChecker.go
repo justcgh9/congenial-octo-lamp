@@ -139,6 +139,8 @@ func (v *Visitor) VisitApplication(ctx *parser.ApplicationContext) interface{} {
 	v.checking = false
 	fn, ok := ctx.GetFun().Accept(v).(env.Func)
 	if !ok {
+		// fmt.Println(ctx.GetFun().Accept(v).(env.Type).Type(), ctx.GetFun().GetText())
+		// fmt.Printf("%T\n", ctx.GetFun())
 		v.err("ERROR_NOT_A_FUNCTION")
 	}
 
@@ -413,7 +415,35 @@ func (v *Visitor) VisitDeclFun(ctx *parser.DeclFunContext) interface{} {
 }
 
 func (v *Visitor) VisitDeclFunGeneric(ctx *parser.DeclFunGenericContext) interface{} {
-	panic("unimplemented")
+	v.env.Push()
+	
+	f := v.env.Check(ctx.GetName().GetText()).(env.GenericAbstraction)
+
+	v.typesEnv.Push()
+	defer v.typesEnv.Pop()
+
+	for _, expr := range f.Bindings {
+		v.typesEnv.Put(expr.Name, expr.T)	
+	}
+
+	v.checking = false
+	for _, param := range ctx.GetParamDecls() {
+		param.Accept(v)
+	}
+
+	v.checking = true
+	v.checkingForType = ctx.GetReturnType().Accept(v).(env.Type)
+	ctx.GetReturnExpr().Accept(v)
+
+	v.env.Pop()
+
+	ft := f.T.(env.Func)
+	ft.Return = v.checkingForType
+	f.T = ft
+
+	v.env.Put(ctx.GetName().GetText(), f)
+
+	return nil
 }
 
 func (v *Visitor) VisitDeclTypeAlias(ctx *parser.DeclTypeAliasContext) interface{} {
@@ -1012,7 +1042,7 @@ func (v *Visitor) VisitParamDecl(ctx *parser.ParamDeclContext) interface{} {
 	}
 
 	if v.checking && ty.Type() != v.checkingForType.Type() {
-		v.err("ERROR_UNEXPECTED_TYPE_FOR_PARAMETER")
+		v.err("ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION")
 	}
 
 	v.env.Put(nm, ty)
@@ -1213,9 +1243,57 @@ func (v *Visitor) VisitProgram(ctx *parser.ProgramContext) interface{} {
 	}
 
 	for _, decl := range ctx.GetDecls() {
-		v.env.Push()
+		
 		val, ok := decl.(*parser.DeclFunContext)
-		if !ok {continue}
+		if !ok {
+
+			val, ok := decl.(*parser.DeclFunGenericContext)
+			if !ok { continue }
+
+			v.env.Push()
+			v.typesEnv.Push()
+
+			generics := map[string]env.Type{}
+			bindings := []env.Binding{}
+		
+			for _, expr := range val.GetGenerics() {
+				typeVar := NewTypeVar()
+				v.typesEnv.Put(expr.GetText(), typeVar)
+				generics[expr.GetText()] = typeVar
+				bindings = append(bindings, env.Binding{
+					Name: expr.GetText(),
+					T: typeVar,
+				})
+			}
+			
+			args := make([]env.Type, 0, len(val.GetParamDecls()))
+			for _, val := range val.GetParamDecls() {
+				args = append(args, val.Accept(v).(env.Type))
+			}
+			
+			returnType := val.GetReturnType().Accept(v).(env.Type)
+
+			v.typesEnv.Pop()
+			v.env.Pop()
+
+			newCtx := &parser.AbstractionContext{}
+			newCtx.SetParamDecls(val.GetParamDecls())
+			newCtx.SetReturnExpr(val.GetReturnExpr())
+
+			v.env.Put(val.GetName().GetText(), env.GenericAbstraction{
+				Generics: generics,
+				Bindings: bindings,
+				T: env.Func{
+					Args: args,
+					Return: returnType,
+				},
+				Ctx: newCtx,
+			})
+			
+			continue
+		}
+		
+		v.env.Push()
 
 		args := make([]env.Type, 0, len(val.GetParamDecls()))
 
@@ -1704,7 +1782,7 @@ func (v *Visitor) VisitTypeApplication(ctx *parser.TypeApplicationContext) inter
 	}
 
 	t = expr.Ctx.Accept(v).(env.Type)
-
+	// fmt.Printf("%T %s\n", expr.Ctx, expr.Ctx.GetText())
 	return t
 }
 
